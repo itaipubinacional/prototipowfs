@@ -10,10 +10,15 @@ var Layers = {
 
 		this.googleMaps = new ol.layer.Tile({source: new ol.source.MapQuest({layer: 'osm'})});
 
-		this.vectorPoints = new ol.layer.Vector({
-		  source: mySources.sourcePoints,
-		  style: myStyle.styleFunction
-		});
+		this.vectorPoints =null;
+
+		this.newLayer = function(url){
+			this.vectorPoints = new ol.layer.Vector({
+			  source: mySources.newSource(url),
+			  style: myStyle.styleFunction
+			});
+			return this.vectorPoints;
+		}
 
 		this.vectorInteraction = new ol.layer.Vector({
 		  source: mySources.sourceInteraction,

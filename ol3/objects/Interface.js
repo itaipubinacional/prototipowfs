@@ -16,7 +16,7 @@ var Interface = {
 
 
 		this.map = new ol.Map({
-			layers: [myLayers.OSM, myLayers.vectorPoints, myLayers.vectorInteraction],
+			layers: [myLayers.OSM, myLayers.vectorInteraction],
 			overlays: [this.popup],
 			target: document.getElementById('map'),
 			view: new ol.View({
@@ -25,6 +25,10 @@ var Interface = {
 				zoom: 9
 			})
 		});
+
+		this.newLayer = function(url){
+			this.map.addLayer(myLayers.newLayer(url));
+		}
 
 		this.map.addInteraction(myInteractions.select);
 
@@ -143,25 +147,6 @@ var Interface = {
 				this.form.submit();
 			}
 		}
-
-		this.changeMapButton.onclick = function(){
-				myInterface.map.removeLayer( myLayers.vectorInteraction );
-				myInterface.map.removeLayer( myLayers.vectorPoints )
-			if(myInterface.changeMapButton.title == "Change to GoogleMaps"){
-				myInterface.map.removeLayer( myLayers.OSM );
-				myInterface.map.addLayer( myLayers.googleMaps );
-				myInterface.map.addLayer( myLayers.vectorInteraction );
-				myInterface.map.addLayer( myLayers.vectorPoints );
-				myInterface.changeMapButton.title = "Change to Open Street Maps";
-			}else{
-				myInterface.map.removeLayer( myLayers.googleMaps ); 
-				myInterface.map.addLayer( myLayers.OSM );
-				myInterface.map.addLayer( myLayers.vectorInteraction );
-				myInterface.map.addLayer( myLayers.vectorPoints );
-				myInterface.changeMapButton.title = "Change to GoogleMaps";
-			}
-		}
-
 		this.saveModifyButton.onclick = function(){
 			$(myInterface.myModal).modal('show');
 		}

@@ -1,7 +1,7 @@
 var Options = {
-	Class: function(url){
+	Class: function(){
 
-		mySources = new Sources.Class(url);
+		mySources = new Sources.Class();
 		myLayers = new Layers.Class(mySources);
 		myInteractions = new Interactions.Class(mySources);
 		myInterface = new Interface.Class(mySources, myInteractions, myLayers);
