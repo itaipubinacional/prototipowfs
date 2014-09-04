@@ -6,37 +6,28 @@ myOptions.SelectOption(); //Select is default option
 window.onload = function(){
 
   $(function(){
-    $('#radioOptions .btn-default').on('click', function(){ //Select Button
+    $('#radioOptions label').on('click', function(){
       $(myInterface.element).popover('destroy');
-      myOptions.SelectOption();
-    });
-    $('#radioOptions .btn-primary').on('click', function(){ //Draw Button
-      $(myInterface.element).popover('destroy');
-      myOptions.DrawOption();
-    });
-    $('#radioOptions .btn-warning').on('click', function(){ //Modify Button
-      $(myInterface.element).popover('destroy');
-      myOptions.ModifyOption();
-    });
-    $('#radioOptions .btn-danger').on('click', function(){ //Delete Button
-      $(myInterface.element).popover('destroy');
-      myOptions.DeleteOption();
-    });
+      myInterface.map.unByKey( myInteractions.listenerKey );
 
-    $('#layersTable a').on('click', function(){
-        if($(this).attr('class') === 'glyphicon glyphicon-eye-close'){
-        myInterface.newLayer('http://msiegalxhp:8080/geoserver/wfs?service=WFS&' +
-                                  'version=2.0.0&' +
-                                  'request=GetFeature&typename=sid1.gg:'+$(this).attr('id')+'&' +
-                                  'outputFormat=text/javascript&' +
-                                  'format_options=callback:mySources.loadFeaturesPoints&' +
-                                  'srsname=EPSG:900913');
-        $(this).attr('class','glyphicon glyphicon-eye-open');
-     }else{
-        $(this).attr('class','glyphicon glyphicon-eye-close');
-     }
+      var optionId = $(this).attr('id');
+      switch(optionId){
+        case 'selectOption':
+          myOptions.SelectOption();
+          break;
+        case 'drawOption':
+          myOptions.DrawOption();
+          break;
+        case 'modifyOption':
+          myOptions.ModifyOption();
+          break;
+        case 'deleteOption':
+          myOptions.DeleteOption();
+          break;
+      };
     });
   });
+
   $('#changeMapTo a').on('click', function(){
     var id = $(this).attr('id');
     if(id == "GoogleMaps"){ //Change to Open Street Maps
@@ -50,5 +41,19 @@ window.onload = function(){
       myInterface.map.addLayer( myLayers.vectorInteraction );
       myInterface.map.addLayer( myLayers.vectorPoints );
     }
+  });
+
+  $('#layersTable a').on('click', function(){
+    if($(this).attr('class') == 'glyphicon glyphicon-eye-close'){
+    myInterface.newLayer('http://msiegalxhp:8080/geoserver/wfs?service=WFS&' +
+                              'version=2.0.0&' +
+                              'request=GetFeature&typename=sid1.gg:'+$(this).attr('id')+'&' +
+                              'outputFormat=text/javascript&' +
+                              'format_options=callback:mySources.loadFeaturesPoints&' +
+                              'srsname=EPSG:900913');
+    $(this).attr('class','glyphicon glyphicon-eye-open');
+   }else{
+      $(this).attr('class','glyphicon glyphicon-eye-close');
+   }
   });
 }

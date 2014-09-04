@@ -117,17 +117,17 @@
           <div class="row">
             <div class="pull-lefth">
               <div class="btn-group" data-toggle="buttons" id="radioOptions">
-                  <label class="btn btn-default active" title="Select">
-                    <input type="radio" name="radioAction" id="selectOption" checked> <span class="glyphicon glyphicon-comment"></span>
+                  <label class="btn btn-default active" title="Select" id="selectOption">
+                    <input type="radio" name="radioAction" checked> <span class="glyphicon glyphicon-comment"></span>
                   </label>
-                  <label class="btn btn-primary" title="Draw">
-                    <input type="radio" name="radioAction" id="drawOption"> <span class="glyphicon glyphicon-pencil"></span>
+                  <label class="btn btn-primary" title="Draw" id="drawOption">
+                    <input type="radio" name="radioAction"> <span class="glyphicon glyphicon-pencil"></span>
                   </label>
-                  <label class="btn btn-warning" title="Modify">
-                    <input type="radio" name="radioAction" id="modifyOption"> <span class="glyphicon glyphicon-move"></span>
+                  <label class="btn btn-warning" title="Modify" id="modifyOption">
+                    <input type="radio" name="radioAction"> <span class="glyphicon glyphicon-move"></span>
                   </label>
-                  <label class="btn btn-danger" title="Delete">
-                    <input type="radio" name="radioAction" id="deleteOption"> <span class="glyphicon glyphicon-trash"></span>
+                  <label class="btn btn-danger" title="Delete" id="deleteOption">
+                    <input type="radio" name="radioAction"> <span class="glyphicon glyphicon-trash"></span>
                   </label>
               </div>
               <div class="pull-right">
