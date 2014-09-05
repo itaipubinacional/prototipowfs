@@ -3,21 +3,20 @@ var Layers = {
 		
 		myStyle = new Styles.Class();
 
-
 		this.OSM = new ol.layer.Tile({
 		  source: new ol.source.OSM(),
 		});
 
-		this.googleMaps = new ol.layer.Tile({source: new ol.source.MapQuest({layer: 'osm'})});
-
-		this.vectorPoints =null;
+		this.googleMaps = new ol.layer.Tile({
+			source: new ol.source.MapQuest({layer: 'osm'}),
+			visible: false //default visible
+		});
 
 		this.newLayer = function(url){
-			this.vectorPoints = new ol.layer.Vector({
+			return vectorPoints = new ol.layer.Vector({
 			  source: mySources.newSource(url),
 			  style: myStyle.styleFunction
 			});
-			return this.vectorPoints;
 		}
 
 		this.vectorInteraction = new ol.layer.Vector({

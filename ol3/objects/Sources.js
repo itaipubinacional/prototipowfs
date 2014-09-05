@@ -5,10 +5,10 @@ var Sources = {
 		  this.sourcePoints.addFeatures(this.sourcePoints.readFeatures(response));
 		};
 
-		this.sourcePoints = null;
+		this.sourcePoints = null
 
-		this.newSource = function(url){
-			this.sourcePoints = new ol.source.ServerVector({
+		this.newSource = function(url, name){
+			return this.sourcePoints = new ol.source.ServerVector({
 			  format: new ol.format.GeoJSON(),
 			  loader: function(extent, resolution, projection) {
 			    $.ajax({
@@ -20,7 +20,6 @@ var Sources = {
 			    maxZoom: 19
 			  }))
 			});
-			return this.sourcePoints;
 		}
 
 		this.sourceInteraction = new ol.source.Vector();

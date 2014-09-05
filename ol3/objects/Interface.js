@@ -14,9 +14,8 @@ var Interface = {
 			stopEvent: false
 		});
 
-
 		this.map = new ol.Map({
-			layers: [myLayers.OSM, myLayers.vectorInteraction],
+			layers: [myLayers.OSM, myLayers.googleMaps, myLayers.vectorInteraction],
 			overlays: [this.popup],
 			target: document.getElementById('map'),
 			view: new ol.View({
@@ -25,6 +24,8 @@ var Interface = {
 				zoom: 9
 			})
 		});
+
+		this.layersCollection = this.map.getLayers();
 
 		this.newLayer = function(url){
 			this.map.addLayer(myLayers.newLayer(url));

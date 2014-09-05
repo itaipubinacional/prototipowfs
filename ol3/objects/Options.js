@@ -7,7 +7,6 @@ var Options = {
 		myInterface = new Interface.Class(mySources, myInteractions, myLayers);
 
 		this.SelectOption = function(){
-			myInterface.map.unByKey( myInteractions.listenerKey );
 			myInterface.map.removeInteraction( myInteractions.draw );
 			myInterface.map.removeInteraction( myInteractions.modify );
 			myInterface.saveModifyButton.style.display = "none";
@@ -17,7 +16,6 @@ var Options = {
 		}
 
 		this.DrawOption = function(){
-			myInterface.map.unByKey( myInteractions.listenerKey );
 			myInterface.map.removeInteraction( myInteractions.modify );
 			myInterface.map.addInteraction( myInteractions.draw );
 			myInterface.saveModifyButton.style.display = "none";
@@ -29,7 +27,6 @@ var Options = {
 		}
 
 		this.ModifyOption = function(){
-			myInterface.map.unByKey( myInteractions.listenerKey );
 			myInterface.map.removeInteraction( myInteractions.draw );
 			myInterface.map.addInteraction( myInteractions.modify );
 			myInteractions.isDraw = false;
@@ -37,7 +34,6 @@ var Options = {
 		}
 
 		this.DeleteOption = function(){
-			myInterface.map.unByKey( myInteractions.listenerKey );
 			myInterface.map.removeInteraction( myInteractions.draw );
 			myInterface.map.removeInteraction( myInteractions.modify );
 			myInterface.saveModifyButton.style.display = "none";
