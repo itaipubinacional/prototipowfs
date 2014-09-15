@@ -23,5 +23,18 @@ var Layers = {
 		  source: mySources.sourceInteraction,
 		  style: myStyle.styleFunction
 		});
+
+
+	  $('#changeMapTo a').on('click', function(){
+	    var id = $(this).attr('id');
+	    if(id == "GoogleMaps"){ //Change to Open Street Maps
+	      myLayers.googleMaps.setVisible(true);
+	      myLayers.OSM.setVisible(false);
+	    }else{ // Change to Google Maps
+	      myLayers.OSM.setVisible(true);
+	      myLayers.googleMaps.setVisible(false);
+	    }
+	  });
+	  
 	}
 };

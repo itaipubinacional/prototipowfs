@@ -2,21 +2,11 @@ var Interface = {
 	Class : function(mySources, myInteractions, myLayers){
 
 		this.myModal = document.getElementById('myModal');
-		this.element = document.getElementById('popup');
 		this.form = document.getElementById('form');
 		this.nameControlLabel = document.getElementById('nameControl');
-		this.saveModifyButton = document.getElementById('saveModifyButton');
-		this.changeMapButton = document.getElementById('changeMapButton');
-		
-		this.popup = new ol.Overlay({
-			element: this.element,
-			positioning: 'bottom-center',
-			stopEvent: false
-		});
 
 		this.map = new ol.Map({
 			layers: [myLayers.OSM, myLayers.googleMaps, myLayers.vectorInteraction],
-			overlays: [this.popup],
 			target: document.getElementById('map'),
 			view: new ol.View({
 				center: [-6017386.113063093,-2863520.331444242],
@@ -35,7 +25,7 @@ var Interface = {
 
 		//Modal Buttons -------
 
-		this.form.submitButton.onclick = function() { //Draw or Modify Feature
+		$('#submitButton').click(function() { //Draw or Modify Feature
 			if (this.form.name.value != ''){
 				var collection = myInteractions.select.getFeatures();
 				var feature = collection.pop();
@@ -91,37 +81,43 @@ var Interface = {
 				this.form.submit();
 				}else 
 					myInterface.nameControlLabel.hidden = false; //Show error message
-		}
+		});
 
-		this.form.cancelButton.onclick = function(){
+		$('#cancelButton').click(function(){
 			mySources.sourceInteraction.clear();
 			myInterface.map.removeInteraction( myInteractions.select );
 			myInteractions.select = new ol.interaction.Select();
 			myInterface.map.addInteraction( myInteractions.select );
-		}
+		});
 
 		//end of Modal Buttons-------
 
 		this.SelectFeature = function(pixel) {
-			$(this.element).popover('destroy');
 			var feature = this.map.forEachFeatureAtPixel(pixel, function(feature, layer) {
 				return feature;
 			});
-
 			if (feature){
+				var featureKeysArray = feature.getKeys();
+
+				var str = "<tbody>";
+				for (var i = 1; i < featureKeysArray.length; i++){
+					str+="<tr>"+
+							"<th>"+featureKeysArray[i]+"</th>"+
+							"<td> "+feature.get(featureKeysArray[i])+"</td>"+
+						"</tr>";
+				}
+				str += "</tbody>";
+
+				$('#panelTable').html(feature.getId());
+				$('#infoTable').html(str);
+
 				this.form.name.value = feature.get('nome')? feature.get('nome'):'';
 				var coord = feature.getGeometry().getCoordinates();
 				this.popup.setPosition(coord);
 
-				$(this.element).popover({
-				'placement': 'top',
-				'html': true,
-				'content': feature.get('nome')
-				});
-				$(this.element).popover('show');
 			}else{
 					this.form.name.value = '';
-					$(this.element).popover('destroy');
+					$('#infoTable').html('');
 			}
 		}
 
@@ -147,9 +143,6 @@ var Interface = {
 				this.form.textXML.value = str;
 				this.form.submit();
 			}
-		}
-		this.saveModifyButton.onclick = function(){
-			$(myInterface.myModal).modal('show');
 		}
 	}
 };

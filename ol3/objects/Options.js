@@ -9,7 +9,6 @@ var Options = {
 		this.SelectOption = function(){
 			myInterface.map.removeInteraction( myInteractions.draw );
 			myInterface.map.removeInteraction( myInteractions.modify );
-			myInterface.saveModifyButton.style.display = "none";
 			myInteractions.listenerKey = myInterface.map.on('click', function( evt ) { //Returns Key of Listener
 				myInterface.SelectFeature(evt.pixel);
 			});
@@ -18,7 +17,6 @@ var Options = {
 		this.DrawOption = function(){
 			myInterface.map.removeInteraction( myInteractions.modify );
 			myInterface.map.addInteraction( myInteractions.draw );
-			myInterface.saveModifyButton.style.display = "none";
 			myInteractions.isDraw = true;
 			myInteractions.listenerKey = myInterface.map.on('click', function() { //Returns Key of Listener
 				myInterface.form.name.value = '';
@@ -30,13 +28,11 @@ var Options = {
 			myInterface.map.removeInteraction( myInteractions.draw );
 			myInterface.map.addInteraction( myInteractions.modify );
 			myInteractions.isDraw = false;
-			myInterface.saveModifyButton.style.display = "block";
 		}
 
 		this.DeleteOption = function(){
 			myInterface.map.removeInteraction( myInteractions.draw );
 			myInterface.map.removeInteraction( myInteractions.modify );
-			myInterface.saveModifyButton.style.display = "none";
 			myInteractions.listenerKey = myInterface.map.on( 'click', function( evt ) { //Returns Key of Listener
 				myInterface.DeleteFeature( evt.pixel );
 			});
