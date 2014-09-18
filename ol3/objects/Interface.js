@@ -25,6 +25,8 @@ var Interface = {
 
 		//Modal Buttons -------
 
+		this.store = "sid1.gg";
+
 		$('#submitButton').click(function() { //Draw or Modify Feature
 			if (this.form.name.value != ''){
 				var collection = myInteractions.select.getFeatures();
@@ -34,19 +36,19 @@ var Interface = {
 					str = '<Transaction service="WFS" version="1.1.0"\n'+
 					      ' xmlns:wfs="http://www.opengis.net/wfs"\n'+
 					      ' xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"\n'+
-					      ' xmlns:sid1.gg="sid1.gg"\n'+
+					      ' xmlns:'+myInterface.store+'="'+myInterface.store+'"\n'+
 					      ' xmlns:gml="http://www.opengis.net/gml"\n'+
-					      ' xsi:schemaLocation="http://www.opengis.net/wfs http://schemas.opengis.net/wfs/1.0.0/WFS-transaction.xsd http://localhost:8080/geoserver/wfs/DescribeFeatureType?typename=sid1.gg:wfs">'+
+					      ' xsi:schemaLocation="http://www.opengis.net/wfs http://schemas.opengis.net/wfs/1.0.0/WFS-transaction.xsd http://localhost:8080/geoserver/wfs/DescribeFeatureType?typename='+myInterface.store+':wfs">'+
 					        '<wfs:Insert>\n'+
 					          '<gml:featureMember>\n'+
-					            '<sid1.gg:wfs>\n'+
-					              '<sid1.gg:geometria>\n'+
+					            '<'+myInterface.store+':wfs>\n'+
+					              '<'+myInterface.store+':geometria>\n'+
 					                '<gml:'+geometry.getType()+' srsName="http://www.opengis.net/gml/srs/epsg.xml#900913">\n'+
 					                  '<gml:coordinates decimal="." cs="," ts=" ">'+geometry.getCoordinates()+'</gml:coordinates>\n'+
 					                '</gml:'+geometry.getType()+'>\n'+
-					              '</sid1.gg:geometria>\n'+
-					              '<sid1.gg:nome>'+this.form.name.value+'</sid1.gg:nome>\n'+
-					            '</sid1.gg:wfs>\n'+
+					              '</'+myInterface.store+':geometria>\n'+
+					              '<'+myInterface.store+':nome>'+this.form.name.value+'</'+myInterface.store+':nome>\n'+
+					            '</'+myInterface.store+':wfs>\n'+
 					          '</gml:featureMember>\n'+
 					        '</wfs:Insert>\n'+
 					      '</Transaction>\n';
@@ -54,11 +56,11 @@ var Interface = {
 					str = '<Transaction service="WFS" version="1.1.0"\n'+
 					      ' xmlns:wfs="http://www.opengis.net/wfs"\n'+
 					      ' xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"\n'+
-					      ' xmlns:sid1.gg="sid1.gg"\n'+
+					      ' xmlns:'+myInterface.store+'="'+myInterface.store+'"\n'+
 					      ' xmlns:ogc="http://www.opengis.net/ogc"\n'+
 					      ' xmlns:gml="http://www.opengis.net/gml"\n'+
-					      ' xsi:schemaLocation="http://www.opengis.net/wfs http://schemas.opengis.net/wfs/1.0.0/WFS-transaction.xsd http://localhost:8080/geoserver/wfs/DescribeFeatureType?typename=sid1.gg:wfs">'+
-					        '<wfs:Update typeName="sid1.gg:wfs">\n'+
+					      ' xsi:schemaLocation="http://www.opengis.net/wfs http://schemas.opengis.net/wfs/1.0.0/WFS-transaction.xsd http://localhost:8080/geoserver/wfs/DescribeFeatureType?typename='+myInterface.store+':wfs">'+
+					        '<wfs:Update typeName="'+myInterface.store+':wfs">\n'+
 					          '<wfs:Property>\n'+
 					            '<wfs:Name>geometria</wfs:Name>\n'+
 					            '<wfs:Value>\n'+
@@ -99,7 +101,12 @@ var Interface = {
 			if (feature){
 				var featureKeysArray = feature.getKeys();
 
-				var str = "<tbody>";
+				var str = "<tbody>"+
+							"<tr>"+
+								"<th>Id</th>"+
+								"<td>"+feature.getId()+"</td>"+
+							"</tr>";
+
 				for (var i = 1; i < featureKeysArray.length; i++){
 					str+="<tr>"+
 							"<th>"+featureKeysArray[i]+"</th>"+
@@ -108,7 +115,6 @@ var Interface = {
 				}
 				str += "</tbody>";
 
-				$('#panelTable').html(feature.getId());
 				$('#infoTable').html(str);
 
 				this.form.name.value = feature.get('nome')? feature.get('nome'):'';
@@ -117,7 +123,7 @@ var Interface = {
 
 			}else{
 					this.form.name.value = '';
-					$('#infoTable').html('');
+					$('#infoTable').html(' <thead><tr><th>Name</th><th>Data</th></tr></thead></table>');
 			}
 		}
 
@@ -130,9 +136,9 @@ var Interface = {
 				var deleteArray = [feature];
 				var WFS = new ol.format.WFS();
 				var node = WFS.writeTransaction(null,null,deleteArray,{
-					featureNS: 'sid1.gg',
+					featureNS: this.store,
 					featureType: 'wfs',
-					schemaLocation: "http://www.opengis.net/wfs http://schemas.opengis.net/wfs/1.0.0/WFS-transaction.xsd http://localhost:8080/geoserver/wfs/DescribeFeatureType?typename=sid1.gg:wfs",
+					schemaLocation: "http://www.opengis.net/wfs http://schemas.opengis.net/wfs/1.0.0/WFS-transaction.xsd http://localhost:8080/geoserver/wfs/DescribeFeatureType?typename="+this.store+":wfs",
 					srsname: 'http://www.opengis.net/gml/srs/epsg.xml#900913',
 					gmlOptions: {
 						srsname: 'http://www.opengis.net/gml/srs/epsg.xml#900913',

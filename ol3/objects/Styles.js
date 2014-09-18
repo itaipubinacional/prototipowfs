@@ -19,7 +19,7 @@ var Styles = {
 		  })],
 		  'MultiLineString': [new ol.style.Style({
 		    stroke: new ol.style.Stroke({
-		      color: 'green',
+		      color: 'blue',
 		      width: 1
 		    })
 		  })],
@@ -34,11 +34,11 @@ var Styles = {
 		  })],
 		  'MultiPolygon': [new ol.style.Style({
 		    stroke: new ol.style.Stroke({
-		      color: 'blue',
-		      width: 1
+		      color: 'rgba(155, 0, 100, 1)',
+		      width: 3
 		    }),
 		    fill: new ol.style.Fill({
-		      color: 'rgba(0, 0, 255, 0.1)'
+		      color: 'rgba(155, 0, 100, 0.1)'
 		    })
 		  })],
 		  'Polygon': [new ol.style.Style({

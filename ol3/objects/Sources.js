@@ -12,7 +12,7 @@ var Sources = {
 			  format: new ol.format.GeoJSON(),
 			  loader: function(extent, resolution, projection) {
 			    $.ajax({
-			      url: url,
+			      url: url + '&bbox=' + extent.join(',') + ',EPSG:900913',
 			      dataType: 'jsonp'
 			    });
 			  },

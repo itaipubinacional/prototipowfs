@@ -31,6 +31,7 @@
       <script src = "objects/Options.js" type="text/javascript"></script>
 
       <title>My Map</title>
+      <link rel="shortcut icon" href="icon.png">
     </head>
   <body>
     <div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
@@ -93,7 +94,7 @@
           </table>
           <div class="panel panel-default">
             <!-- Default panel contents -->
-            <div class="panel-heading" id="panelTable">Info Table</div>
+            <div class="panel-heading">Feature Infomation</div>
               <table class="table table-hover" id="infoTable">
                 <thead>
                   <tr>
@@ -136,9 +137,9 @@
             ?>
           <div class="row">
             <div class="pull-lefth">
-              <div class="btn-group" data-toggle="buttons" id="radioOptions" >
+              <div class="btn-group" data-toggle="buttons" id="radioOptions">
                   <label class="btn btn-default active" title="Select" id="selectOption">
-                    <input type="radio" name="radioAction" checked> <span class="glyphicon glyphicon-info-sign"></span>
+                    <input type="radio" name="radioAction"> <span class="glyphicon glyphicon-info-sign"></span>
                   </label>
                   <label class="btn btn-primary" title="Draw" id="drawOption">
                     <input type="radio" name="radioAction"> <span class="glyphicon glyphicon-plus"></span>

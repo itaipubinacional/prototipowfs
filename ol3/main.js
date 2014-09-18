@@ -37,7 +37,7 @@ window.onload = function(){
 
           var url = 'http://msiegalxhp:8080/geoserver/wfs?service=WFS&' +
                     'version=2.0.0&'+
-                    'request=GetFeature&typename=sid1.gg:'+$(this).attr('name')+'&' +
+                    'request=GetFeature&typename='+myInterface.store+':'+$(this).attr('name')+'&' +
                     'outputFormat=text/javascript&' +
                     'format_options=callback:mySources.loadFeaturesPoints&' +
                     'srsname=EPSG:900913';
@@ -61,7 +61,7 @@ window.onload = function(){
 
         var url = 'http://msiegalxhp:8080/geoserver/wfs?service=WFS&' +
                   'version=2.0.0&'+
-                  'request=GetFeature&typename=sid1.gg:'+$(this).attr('name')+'&' +
+                  'request=GetFeature&typename='+myInterface.store+':'+$(this).attr('name')+'&' +
                   'outputFormat=text/javascript&' +
                   'format_options=callback:mySources.loadFeaturesPoints&' +
                   'srsname=EPSG:900913';
