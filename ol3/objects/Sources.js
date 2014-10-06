@@ -7,7 +7,7 @@ var Sources = {
 
 		this.sourcePoints = null
 
-		this.newSource = function(url, name){
+		this.newSource = function(url){
 			return this.sourcePoints = new ol.source.ServerVector({
 			  format: new ol.format.GeoJSON(),
 			  loader: function(extent, resolution, projection) {

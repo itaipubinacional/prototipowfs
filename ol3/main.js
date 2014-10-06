@@ -1,76 +1,35 @@
-
+var mySources = new Sources.Class();
+var myLayers = new Layers.Class();
+var myInteractions = new Interactions.Class();
+var myInterface = new Interface.Class();
 var myOptions = new Options.Class();
 
-myOptions.SelectOption(); //Select is default option
+$('#layersTable .editColumn').hide(); //hide the columm edit
 
 window.onload = function(){
 
-  $(function(){
-    $('#radioOptions label').on('click', function(){
-      myInterface.map.unByKey( myInteractions.listenerKey );
+	myOptions.SelectOption(); //Select is default option
 
-      var optionId = $(this).attr('id');
-      switch(optionId){
-        case 'selectOption':
-          myOptions.SelectOption();
-          break;
-        case 'drawOption':
-          myOptions.DrawOption();
-          break;
-        case 'modifyOption':
-          myOptions.ModifyOption();
-          break;
-        case 'deleteOption':
-          myOptions.DeleteOption();
-          break;
-      };
-    });
-  });
+	$('#IntertionMessage').delay('slow').fadeOut(); //hide the sucseful or error message
 
-  $('#layersTable a').on('click', function(){
+	$('#layersTable a').on('click', function(){ //Vilibility button
+		myInterface.showLayer($(this).attr('id'));
+	});
 
-    switch($(this).attr('type')){
+	$('#layersTable input').on('change', function(){ //Edit button
+		myInterface.setEdit($(this).attr('layerName'));
+	});
 
-      case 'visibility':
+	$('#toolsOptions label').on('change', function(){
+		myInterface.setOption($(this).attr('id')); 
+	}); 
 
-        if($(this).attr('class') == 'glyphicon glyphicon-eye-close'){ //the layer is hidden
+	$('#cancelButton').click(function(){
+		myInterface.cancelDrawInteraction();
+	});
 
-          var url = 'http://msiegalxhp:8080/geoserver/wfs?service=WFS&' +
-                    'version=2.0.0&'+
-                    'request=GetFeature&typename='+myInterface.store+':'+$(this).attr('name')+'&' +
-                    'outputFormat=text/javascript&' +
-                    'format_options=callback:mySources.loadFeaturesPoints&' +
-                    'srsname=EPSG:900913';
-
-          var layer = myLayers.newLayer(url);
-          $(this).attr('index', myInterface.layersCollection.push(layer)); //the collection returns the layer's index
-          $(this).attr('class','glyphicon glyphicon-eye-open');
-
-        }else{  //the layer is visible
-
-          myInterface.layersCollection.removeAt(parseInt($(this).attr('index'))); //index of the element to delete
-          $(this).attr('class','glyphicon glyphicon-eye-close');
-        }
-        break;
-
-      case 'edit':
-
-        while(myInterface.layersCollection.getLength() > 2){ // 2 Layers from GoogleMaps and OpenStreetMaps
-          myInterface.layersCollection.pop();
-        }
-
-        var url = 'http://msiegalxhp:8080/geoserver/wfs?service=WFS&' +
-                  'version=2.0.0&'+
-                  'request=GetFeature&typename='+myInterface.store+':'+$(this).attr('name')+'&' +
-                  'outputFormat=text/javascript&' +
-                  'format_options=callback:mySources.loadFeaturesPoints&' +
-                  'srsname=EPSG:900913';
-
-          var layer = myLayers.newLayer(url);
-          $(this).attr('index', myInterface.layersCollection.push(layer)); //the collection returns the layer's index
-        break;
-    }
-  });
-
-
-}
+	$('#submitButton').click(function() {
+		myInterface.submitXml();
+	});
+	$('myModal').modal('show');
+};

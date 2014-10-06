@@ -1,5 +1,5 @@
 var Interactions = {
-	Class: function(mySources){
+	Class: function(){
 	  	this.listenerKey;
 
 	    this.isDraw;
@@ -14,5 +14,10 @@ var Interactions = {
 		this.modify = new ol.interaction.Modify({
 		  features: this.select.getFeatures()
 		});
+
+
+		this.getInteractions = function(){
+			return [this.select, this.draw, this.modify];
+		}
 	}
 }

@@ -1,5 +1,5 @@
 var Layers = {
-	Class : function(mySources){
+	Class : function(){
 		
 		myStyle = new Styles.Class();
 

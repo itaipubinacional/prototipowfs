@@ -1,10 +1,8 @@
 var Interface = {
-	Class : function(mySources, myInteractions, myLayers){
+	Class : function(){
 
-		this.myModal = document.getElementById('myModal');
 		this.form = document.getElementById('form');
 		this.nameControlLabel = document.getElementById('nameControl');
-
 		this.map = new ol.Map({
 			layers: [myLayers.OSM, myLayers.googleMaps, myLayers.vectorInteraction],
 			target: document.getElementById('map'),
@@ -15,9 +13,24 @@ var Interface = {
 			})
 		});
 
-		this.layersCollection = this.map.getLayers();
+		this.removeAllInteractions = function(){  //but not the select and default interactions
+			for(var i = 10; i < this.interactionsCollection.getLength(); i++){ //[0]..[9] is defaults interactions
+				this.interactionsCollection.pop();
+			}
+			this.map.unByKey( myInteractions.listenerKey );
+		}
 
-		this.newLayer = function(url){
+		this.layersCollection = this.map.getLayers();
+		this.interactionsCollection = this.map.getInteractions();
+
+		this.newLayer = function(layerName){
+			var url = 'http://msiegalxhp:8080/geoserver/wfs?service=WFS&' +
+				'version=2.0.0&'+
+				'request=GetFeature&'+
+				'typename='+this.store+':'+layerName+'&' +
+				'outputFormat=text/javascript&' +
+				'format_options=callback:mySources.loadFeaturesPoints&' +
+				'srsname=EPSG:900913';
 			this.map.addLayer(myLayers.newLayer(url));
 		}
 
@@ -27,7 +40,7 @@ var Interface = {
 
 		this.store = "sid1.gg";
 
-		$('#submitButton').click(function() { //Draw or Modify Feature
+		this.submitXml = function(){ //Draw or Modify Feature
 			if (this.form.name.value != ''){
 				var collection = myInteractions.select.getFeatures();
 				var feature = collection.pop();
@@ -83,14 +96,13 @@ var Interface = {
 				this.form.submit();
 				}else 
 					myInterface.nameControlLabel.hidden = false; //Show error message
-		});
+		};
 
-		$('#cancelButton').click(function(){
+		this.cancelDrawInteraction = function(){
 			mySources.sourceInteraction.clear();
-			myInterface.map.removeInteraction( myInteractions.select );
-			myInteractions.select = new ol.interaction.Select();
-			myInterface.map.addInteraction( myInteractions.select );
-		});
+			var collection = myInteractions.select.getFeatures();
+			collection.clear();
+		};
 
 		//end of Modal Buttons-------
 
@@ -107,7 +119,7 @@ var Interface = {
 								"<td>"+feature.getId()+"</td>"+
 							"</tr>";
 
-				for (var i = 1; i < featureKeysArray.length; i++){
+				for (var i = 1; i < featureKeysArray.length; i++){ // feature.get(0) = geometry = Object then "i = 1"
 					str+="<tr>"+
 							"<th>"+featureKeysArray[i]+"</th>"+
 							"<td> "+feature.get(featureKeysArray[i])+"</td>"+
@@ -116,10 +128,6 @@ var Interface = {
 				str += "</tbody>";
 
 				$('#infoTable').html(str);
-
-				this.form.name.value = feature.get('nome')? feature.get('nome'):'';
-				var coord = feature.getGeometry().getCoordinates();
-				this.popup.setPosition(coord);
 
 			}else{
 					this.form.name.value = '';
@@ -149,6 +157,87 @@ var Interface = {
 				this.form.textXML.value = str;
 				this.form.submit();
 			}
+		}
+
+		this.setOption = function(optionId){
+			this.removeAllInteractions();
+
+			switch(optionId){
+
+				case 'alternateEditOption':
+					var disabled = $('#drawOption').attr('disabled');
+					$('#drawOption').attr('disabled', !disabled); // Not in the disabled
+					$('#modifyOption').attr('disabled', !disabled);
+					$('#deleteOption').attr('disabled', !disabled);
+					$('#saveButton').attr('disabled', !disabled);
+
+					if(disabled){
+					$('#layersTable .editColumn').show();
+					}else
+					$('#layersTable .editColumn').hide();
+
+					break;
+
+				case 'selectOption':
+					myOptions.SelectOption();
+					break;
+
+				case 'drawOption':
+					myOptions.DrawOption();
+					break;
+
+				case 'modifyOption':
+					myOptions.ModifyOption();
+					break;
+
+				case 'deleteOption':
+					myOptions.DeleteOption();
+					break;
+			}
+		};
+
+		this.setEdit = function(layerId){
+
+			//get the index where the layer is inserted in the collection
+			var layerIndex = $('#'+layerId).attr('index');
+
+			var layer;
+			if(layerIndex){ // Is there layer on the list ?
+				//remove the layer from the list
+				layer = this.layersCollection.removeAt(parseInt(layerIndex));
+			}else{
+				layer = this.newLayer(layerId);
+			}
+
+			//insert the layer on top of the list and returns the index
+			$('#'+layerId).attr('index', this.layersCollection.push(layer)); 
+		};
+
+		this.showLayer = function(layerId){
+			var visibility = $('#'+layerId).attr('class');
+			
+				if(visibility.search('close') != -1){ //the layer is hidden
+
+					var layer = myLayers.newLayer('http://msiegalxhp:8080/geoserver/wfs?service=WFS&' +
+													'version=2.0.0&'+
+													'request=GetFeature&typename='+this.store+':'+layerId+'&' +
+													'outputFormat=text/javascript&' +
+													'format_options=callback:mySources.loadFeaturesPoints&' +
+													'srsname=EPSG:900913');
+
+					var layerIndex =  this.layersCollection.push(layer); //the collection returns the layer's index
+					$('#'+layerId).attr('index', layerIndex);
+
+					var visibility = visibility.replace('close', 'open');
+					$('#'+layerId).attr('class', visibility);
+
+
+				}else{  //the layer is visible
+
+					this.layersCollection.removeAt(parseInt($('#'+layerId).attr('index'))); //index of the element to delete
+					$('#'+layerId).attr('index', null);
+					$('#'+layerId).attr('class',visibility.replace('open','close'));
+				}
 		}
 	}
 };
