@@ -8,7 +8,12 @@ var Options = {
 		}
 
 		this.DrawOption = function(){
+			var geometryName = myInterface.getLayerType(myInterface.layerEditable);
+
+			myInterface.map.removeInteraction( myInteractions.draw );
+			myInteractions.setDrawType(geometryName);
 			myInterface.map.addInteraction( myInteractions.draw );
+			
 			myInteractions.isDraw = true;
 			myInteractions.listenerKey = myInterface.map.on('click', function() { //Returns Key of Listener
 				myInterface.form.name.value = '';

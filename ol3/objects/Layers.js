@@ -7,14 +7,14 @@ var Layers = {
 		  source: new ol.source.OSM(),
 		});
 
-		this.googleMaps = new ol.layer.Tile({
+		this.mapQuest = new ol.layer.Tile({
 			source: new ol.source.MapQuest({layer: 'osm'}),
 			visible: false //default visible
 		});
 
-		this.newLayer = function(url){
+		this.newLayer = function(store, layerId){
 			return vectorPoints = new ol.layer.Vector({
-			  source: mySources.newSource(url),
+			  source: mySources.newSource(store, layerId),
 			  style: myStyle.styleFunction
 			});
 		}
@@ -25,16 +25,15 @@ var Layers = {
 		});
 
 
-	  $('#changeMapTo a').on('click', function(){
-	    var id = $(this).attr('id');
-	    if(id == "GoogleMaps"){ //Change to Open Street Maps
-	      myLayers.googleMaps.setVisible(true);
+	  this.showMapQuest = function(){
+	      myLayers.mapQuest.setVisible(true);
 	      myLayers.OSM.setVisible(false);
-	    }else{ // Change to Google Maps
+	  }
+
+	  this.showOSM = function(){
 	      myLayers.OSM.setVisible(true);
-	      myLayers.googleMaps.setVisible(false);
+	      myLayers.mapQuest.setVisible(false);
 	    }
-	  });
 	  
 	}
 };

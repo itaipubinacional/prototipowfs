@@ -10,8 +10,6 @@ window.onload = function(){
 
 	myOptions.SelectOption(); //Select is default option
 
-	$('#IntertionMessage').delay('slow').fadeOut(); //hide the sucseful or error message
-
 	$('#layersTable a').on('click', function(){ //Vilibility button
 		myInterface.showLayer($(this).attr('id'));
 	});
@@ -24,12 +22,15 @@ window.onload = function(){
 		myInterface.setOption($(this).attr('id')); 
 	}); 
 
-	$('#cancelButton').click(function(){
+	$('#cancelButton').on('click', function(){
 		myInterface.cancelDrawInteraction();
 	});
 
-	$('#submitButton').click(function() {
+	$('#submitButton').on('click', function(){
 		myInterface.submitXml();
 	});
-	$('myModal').modal('show');
+
+	$('#saveButton').on('click', function(){
+		myInterface.modifyFeature();
+	});
 };

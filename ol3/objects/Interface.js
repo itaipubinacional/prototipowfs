@@ -3,8 +3,9 @@ var Interface = {
 
 		this.form = document.getElementById('form');
 		this.nameControlLabel = document.getElementById('nameControl');
+
 		this.map = new ol.Map({
-			layers: [myLayers.OSM, myLayers.googleMaps, myLayers.vectorInteraction],
+			layers: [myLayers.OSM, myLayers.mapQuest, myLayers.vectorInteraction],
 			target: document.getElementById('map'),
 			view: new ol.View({
 				center: [-6017386.113063093,-2863520.331444242],
@@ -12,6 +13,53 @@ var Interface = {
 				zoom: 9
 			})
 		});
+
+		this.setOption = function(optionId){
+			this.removeAllInteractions();
+
+			switch(optionId){
+
+				case 'alternateEditOption':
+					var disabled = $('#drawOption').attr('disabled');
+
+					if(disabled){
+						$('#layersTable .editColumn').show();
+
+					}else{  // not disnabled
+
+						$('#drawOption').attr('disabled', true);
+						$('#modifyOption').attr('disabled', true);
+						$('#deleteOption').attr('disabled', true);
+						$('#saveButton').attr('disabled', true);
+
+						$('#editButton').attr('disabled', true);
+
+						$('#layersTable .editColumn').hide();
+						$('#infoTable .editColumn').off();
+						$('#infoTbody').html('');
+
+						this.layerEditable = null;
+					}
+
+					break;
+
+				case 'selectOption':
+					myOptions.SelectOption();
+					break;
+
+				case 'drawOption':
+					myOptions.DrawOption();
+					break;
+
+				case 'modifyOption':
+					myOptions.ModifyOption();
+					break;
+
+				case 'deleteOption':
+					myOptions.DeleteOption();
+					break;
+			}
+		};
 
 		this.removeAllInteractions = function(){  //but not the select and default interactions
 			for(var i = 10; i < this.interactionsCollection.getLength(); i++){ //[0]..[9] is defaults interactions
@@ -36,8 +84,6 @@ var Interface = {
 
 		this.map.addInteraction(myInteractions.select);
 
-		//Modal Buttons -------
-
 		this.store = "sid1.gg";
 
 		this.submitXml = function(){ //Draw or Modify Feature
@@ -51,17 +97,17 @@ var Interface = {
 					      ' xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"\n'+
 					      ' xmlns:'+myInterface.store+'="'+myInterface.store+'"\n'+
 					      ' xmlns:gml="http://www.opengis.net/gml"\n'+
-					      ' xsi:schemaLocation="http://www.opengis.net/wfs http://schemas.opengis.net/wfs/1.0.0/WFS-transaction.xsd http://localhost:8080/geoserver/wfs/DescribeFeatureType?typename='+myInterface.store+':wfs">'+
+					      ' xsi:schemaLocation="http://www.opengis.net/wfs http://schemas.opengis.net/wfs/1.0.0/WFS-transaction.xsd http://localhost:8080/geoserver/wfs/DescribeFeatureType?typename='+myInterface.store+':'+this.layerEditable+'">'+
 					        '<wfs:Insert>\n'+
 					          '<gml:featureMember>\n'+
-					            '<'+myInterface.store+':wfs>\n'+
+					            '<'+myInterface.store+':'+this.layerEditable+'>\n'+
 					              '<'+myInterface.store+':geometria>\n'+
 					                '<gml:'+geometry.getType()+' srsName="http://www.opengis.net/gml/srs/epsg.xml#900913">\n'+
 					                  '<gml:coordinates decimal="." cs="," ts=" ">'+geometry.getCoordinates()+'</gml:coordinates>\n'+
 					                '</gml:'+geometry.getType()+'>\n'+
 					              '</'+myInterface.store+':geometria>\n'+
 					              '<'+myInterface.store+':nome>'+this.form.name.value+'</'+myInterface.store+':nome>\n'+
-					            '</'+myInterface.store+':wfs>\n'+
+					            '</'+myInterface.store+':'+this.layerEditable+'>\n'+
 					          '</gml:featureMember>\n'+
 					        '</wfs:Insert>\n'+
 					      '</Transaction>\n';
@@ -72,8 +118,8 @@ var Interface = {
 					      ' xmlns:'+myInterface.store+'="'+myInterface.store+'"\n'+
 					      ' xmlns:ogc="http://www.opengis.net/ogc"\n'+
 					      ' xmlns:gml="http://www.opengis.net/gml"\n'+
-					      ' xsi:schemaLocation="http://www.opengis.net/wfs http://schemas.opengis.net/wfs/1.0.0/WFS-transaction.xsd http://localhost:8080/geoserver/wfs/DescribeFeatureType?typename='+myInterface.store+':wfs">'+
-					        '<wfs:Update typeName="'+myInterface.store+':wfs">\n'+
+					      ' xsi:schemaLocation="http://www.opengis.net/wfs http://schemas.opengis.net/wfs/1.0.0/WFS-transaction.xsd http://localhost:8080/geoserver/wfs/DescribeFeatureType?typename='+myInterface.store+':'+this.layerEditable+'">'+
+					        '<wfs:Update typeName="'+myInterface.store+':'+this.layerEditable+'">\n'+
 					          '<wfs:Property>\n'+
 					            '<wfs:Name>geometria</wfs:Name>\n'+
 					            '<wfs:Value>\n'+
@@ -104,34 +150,42 @@ var Interface = {
 			collection.clear();
 		};
 
-		//end of Modal Buttons-------
-
 		this.SelectFeature = function(pixel) {
 			var feature = this.map.forEachFeatureAtPixel(pixel, function(feature, layer) {
 				return feature;
 			});
+
 			if (feature){
+				if(this.layerEditable)
+					$('#editButton').attr('disabled', false);
+
 				var featureKeysArray = feature.getKeys();
 
-				var str = "<tbody>"+
-							"<tr>"+
+				var strInfo ="<tr>"+
 								"<th>Id</th>"+
 								"<td>"+feature.getId()+"</td>"+
 							"</tr>";
+				var strEditInfo = strInfo;
 
-				for (var i = 1; i < featureKeysArray.length; i++){ // feature.get(0) = geometry = Object then "i = 1"
-					str+="<tr>"+
-							"<th>"+featureKeysArray[i]+"</th>"+
-							"<td> "+feature.get(featureKeysArray[i])+"</td>"+
-						"</tr>";
+				 // feature.get(0) = geometry = Object, then "i = 1"
+				for (var i = 1; i < featureKeysArray.length; i++){
+					strInfo += "<tr>"+
+									"<th>"+featureKeysArray[i]+"</th>"+
+									"<td>"+feature.get(featureKeysArray[i])+"</td>"+
+								"</tr>";
+					strEditInfo += "<tr>"+
+									"<th>"+featureKeysArray[i]+"</th>"+
+									"<td><input class='form-control' value='"+feature.get(featureKeysArray[i])+"' /></td>"+
+								"</tr>";
 				}
-				str += "</tbody>";
 
-				$('#infoTable').html(str);
+				$('#infoTbody').html(strInfo);
+				$('#editInfoTbody').html(strEditInfo);
 
 			}else{
-					this.form.name.value = '';
-					$('#infoTable').html(' <thead><tr><th>Name</th><th>Data</th></tr></thead></table>');
+				$('#editButton').attr('disabled', true);
+				$('#infoTbody').html('');
+				$('#editInfoTbody').html(strEditInfo);
 			}
 		}
 
@@ -145,11 +199,29 @@ var Interface = {
 				var WFS = new ol.format.WFS();
 				var node = WFS.writeTransaction(null,null,deleteArray,{
 					featureNS: this.store,
-					featureType: 'wfs',
-					schemaLocation: "http://www.opengis.net/wfs http://schemas.opengis.net/wfs/1.0.0/WFS-transaction.xsd http://localhost:8080/geoserver/wfs/DescribeFeatureType?typename="+this.store+":wfs",
-					srsname: 'http://www.opengis.net/gml/srs/epsg.xml#900913',
+					featureType: this.layerEditable,
+					schemaLocation: "http://www.opengis.net/wfs http://schemas.opengis.net/wfs/1.0.0/WFS-transaction.xsd http://localhost:8080/geoserver/wfs/DescribeFeatureType?typename="+this.store+":"+this.layerEditable
+				});
+				var XMLS = new XMLSerializer();
+				var str = XMLS.serializeToString( node );
+				this.form.textXML.value = str;
+				this.form.submit();
+			}
+		}
+
+		this.modifyFeature = function(feature){
+			var collection = myInteractions.select.getFeatures();
+			var featureArray = collection.getArray();
+
+			if(featureArray){
+				var WFS = new ol.format.WFS();
+				var node = WFS.writeTransaction(null,featureArray,null,{
+					featureNS: this.store,
+					featureType: this.layerEditable,
+					schemaLocation: "http://localhost:8080/geoserver/wfs/DescribeFeatureType?typename="+this.store+":"+this.layerEditable,
 					gmlOptions: {
-						srsname: 'http://www.opengis.net/gml/srs/epsg.xml#900913',
+						srsName: "EPSG:900913",
+						coordinates: "decimal='.' cs=',' ts=' '"
 					}
 				});
 				var XMLS = new XMLSerializer();
@@ -159,71 +231,57 @@ var Interface = {
 			}
 		}
 
-		this.setOption = function(optionId){
-			this.removeAllInteractions();
-
-			switch(optionId){
-
-				case 'alternateEditOption':
-					var disabled = $('#drawOption').attr('disabled');
-					$('#drawOption').attr('disabled', !disabled); // Not in the disabled
-					$('#modifyOption').attr('disabled', !disabled);
-					$('#deleteOption').attr('disabled', !disabled);
-					$('#saveButton').attr('disabled', !disabled);
-
-					if(disabled){
-					$('#layersTable .editColumn').show();
-					}else
-					$('#layersTable .editColumn').hide();
-
-					break;
-
-				case 'selectOption':
-					myOptions.SelectOption();
-					break;
-
-				case 'drawOption':
-					myOptions.DrawOption();
-					break;
-
-				case 'modifyOption':
-					myOptions.ModifyOption();
-					break;
-
-				case 'deleteOption':
-					myOptions.DeleteOption();
-					break;
-			}
-		};
-
+		this.layerEditable = null;
 		this.setEdit = function(layerId){
 
 			//get the index where the layer is inserted in the collection
 			var layerIndex = $('#'+layerId).attr('index');
 
-			var layer;
-			if(layerIndex){ // Is there layer on the list ?
-				//remove the layer from the list
-				layer = this.layersCollection.removeAt(parseInt(layerIndex));
-			}else{
-				layer = this.newLayer(layerId);
-			}
+			if(!layerIndex) // Is there the layer on the list ?
+				this.showLayer(layerId);
 
-			//insert the layer on top of the list and returns the index
-			$('#'+layerId).attr('index', this.layersCollection.push(layer)); 
+			this.layerEditable = layerId;
+
+			$('#drawOption').attr('disabled', false);
+			$('#modifyOption').attr('disabled', false);
+			$('#deleteOption').attr('disabled', false);
+			$('#saveButton').attr('disabled', false);
+			$('#editButton').attr('disabled', true);
+
 		};
+
+		this.getLayerType = function(layerId){
+			var layerIndex = $('#'+layerId).attr('index');
+			var layer = this.layersCollection.removeAt(layerIndex);
+			var source = layer.getSource();
+			var featuresArray = source.getFeatures();
+			var geometry = featuresArray[featuresArray.length-1].getGeometry()
+			layerIndex = this.layersCollection.push(layer);
+			$('#'+layerId).attr('index',layerIndex);
+
+			var geometryType = geometry.getType();
+			switch(geometryType){
+				case geometryType == 'MultiLineString':
+					geometryType = 'LineString';
+					break;
+
+				case geometryType == 'MultiPoint':
+					geometryType = 'Point';
+					break;
+
+				case geometryType == 'MultiPolygon':
+					geometryType = 'Polygon';
+					break;
+			}
+			return geometryType;
+		}
 
 		this.showLayer = function(layerId){
 			var visibility = $('#'+layerId).attr('class');
 			
 				if(visibility.search('close') != -1){ //the layer is hidden
 
-					var layer = myLayers.newLayer('http://msiegalxhp:8080/geoserver/wfs?service=WFS&' +
-													'version=2.0.0&'+
-													'request=GetFeature&typename='+this.store+':'+layerId+'&' +
-													'outputFormat=text/javascript&' +
-													'format_options=callback:mySources.loadFeaturesPoints&' +
-													'srsname=EPSG:900913');
+					var layer = myLayers.newLayer(this.store, layerId);
 
 					var layerIndex =  this.layersCollection.push(layer); //the collection returns the layer's index
 					$('#'+layerId).attr('index', layerIndex);
@@ -239,5 +297,14 @@ var Interface = {
 					$('#'+layerId).attr('class',visibility.replace('open','close'));
 				}
 		}
+
+		this.changeMapTo = function(map){
+
+			if(map == "mapQuest")
+				myLayers.showMapQuest();
+			else
+				myLayers.showOSM();
+		}
+
 	}
 };
