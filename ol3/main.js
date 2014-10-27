@@ -31,6 +31,6 @@ window.onload = function(){
 	});
 
 	$('#saveButton').on('click', function(){
-		myInterface.modifyFeature();
+		myInterface.submitXml();
 	});
 };

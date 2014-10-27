@@ -9,7 +9,6 @@ var Options = {
 
 		this.DrawOption = function(){
 			var geometryName = myInterface.getLayerType(myInterface.layerEditable);
-
 			myInterface.map.removeInteraction( myInteractions.draw );
 			myInteractions.setDrawType(geometryName);
 			myInterface.map.addInteraction( myInteractions.draw );
@@ -27,6 +26,7 @@ var Options = {
 		}
 
 		this.DeleteOption = function(){
+			myInterface.map.unByKey( myInteractions.listenerKey );
 			myInteractions.listenerKey = myInterface.map.on( 'click', function( evt ) { //Returns Key of Listener
 				myInterface.DeleteFeature( evt.pixel );
 			});

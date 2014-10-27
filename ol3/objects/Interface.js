@@ -14,8 +14,13 @@ var Interface = {
 			})
 		});
 
+	    this.layersCollection = this.map.getLayers();
+		this.interactionsCollection = this.map.getInteractions();
+		this.map.addInteraction(myInteractions.select);
+		this.store = "sid1.gg";
+
 		this.setOption = function(optionId){
-			this.removeAllInteractions();
+			this.removeExtraInteractions();
 
 			switch(optionId){
 
@@ -61,15 +66,11 @@ var Interface = {
 			}
 		};
 
-		this.removeAllInteractions = function(){  //but not the select and default interactions
+		this.removeExtraInteractions = function(){  //but not the select and default interactions
 			for(var i = 10; i < this.interactionsCollection.getLength(); i++){ //[0]..[9] is defaults interactions
 				this.interactionsCollection.pop();
 			}
-			this.map.unByKey( myInteractions.listenerKey );
 		}
-
-		this.layersCollection = this.map.getLayers();
-		this.interactionsCollection = this.map.getInteractions();
 
 		this.newLayer = function(layerName){
 			var url = 'http://msiegalxhp:8080/geoserver/wfs?service=WFS&' +
@@ -82,67 +83,148 @@ var Interface = {
 			this.map.addLayer(myLayers.newLayer(url));
 		}
 
-		this.map.addInteraction(myInteractions.select);
-
-		this.store = "sid1.gg";
-
 		this.submitXml = function(){ //Draw or Modify Feature
 			if (this.form.name.value != ''){
 				var collection = myInteractions.select.getFeatures();
 				var feature = collection.pop();
 				var geometry = feature.getGeometry();
-				if(myInteractions.isDraw){
-					str = '<Transaction service="WFS" version="1.1.0"\n'+
-					      ' xmlns:wfs="http://www.opengis.net/wfs"\n'+
-					      ' xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"\n'+
-					      ' xmlns:'+myInterface.store+'="'+myInterface.store+'"\n'+
-					      ' xmlns:gml="http://www.opengis.net/gml"\n'+
-					      ' xsi:schemaLocation="http://www.opengis.net/wfs http://schemas.opengis.net/wfs/1.0.0/WFS-transaction.xsd http://localhost:8080/geoserver/wfs/DescribeFeatureType?typename='+myInterface.store+':'+this.layerEditable+'">'+
-					        '<wfs:Insert>\n'+
-					          '<gml:featureMember>\n'+
-					            '<'+myInterface.store+':'+this.layerEditable+'>\n'+
-					              '<'+myInterface.store+':geometria>\n'+
-					                '<gml:'+geometry.getType()+' srsName="http://www.opengis.net/gml/srs/epsg.xml#900913">\n'+
-					                  '<gml:coordinates decimal="." cs="," ts=" ">'+geometry.getCoordinates()+'</gml:coordinates>\n'+
-					                '</gml:'+geometry.getType()+'>\n'+
-					              '</'+myInterface.store+':geometria>\n'+
-					              '<'+myInterface.store+':nome>'+this.form.name.value+'</'+myInterface.store+':nome>\n'+
-					            '</'+myInterface.store+':'+this.layerEditable+'>\n'+
-					          '</gml:featureMember>\n'+
-					        '</wfs:Insert>\n'+
-					      '</Transaction>\n';
-				}else{
-					str = '<Transaction service="WFS" version="1.1.0"\n'+
-					      ' xmlns:wfs="http://www.opengis.net/wfs"\n'+
-					      ' xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"\n'+
-					      ' xmlns:'+myInterface.store+'="'+myInterface.store+'"\n'+
-					      ' xmlns:ogc="http://www.opengis.net/ogc"\n'+
-					      ' xmlns:gml="http://www.opengis.net/gml"\n'+
-					      ' xsi:schemaLocation="http://www.opengis.net/wfs http://schemas.opengis.net/wfs/1.0.0/WFS-transaction.xsd http://localhost:8080/geoserver/wfs/DescribeFeatureType?typename='+myInterface.store+':'+this.layerEditable+'">'+
-					        '<wfs:Update typeName="'+myInterface.store+':'+this.layerEditable+'">\n'+
-					          '<wfs:Property>\n'+
-					            '<wfs:Name>geometria</wfs:Name>\n'+
-					            '<wfs:Value>\n'+
-					              '<gml:'+geometry.getType()+' srsName="http://www.opengis.net/gml/srs/epsg.xml#900913">\n'+
-					                '<gml:coordinates decimal="." cs="," ts=" ">'+geometry.getCoordinates()+'</gml:coordinates>\n'+
-					              '</gml:'+geometry.getType()+'>\n'+
-					            '</wfs:Value>\n'+
-					          '</wfs:Property>\n'+
-					          '<wfs:Property>\n'+
-					            '<wfs:Name>nome</wfs:Name>\n'+
-					            '<wfs:Value>'+this.form.name.value+'</wfs:Value>\n'+
-					          '</wfs:Property>\n'+
-					          '<ogc:Filter>\n'+
-					            '<ogc:FeatureId fid="'+feature.getId()+'"/>\n'+
-					          '</ogc:Filter>\n'+
-					        '</wfs:Update>\n'+
-					      '</Transaction>\n';
-				}
+
+				if(myInteractions.isDraw)
+					var str = this.drawFeature(feature);
+				else
+					var str = this.modifyFeature(feature);
+
 				this.form.textXML.value = str;
 				this.form.submit();
 				}else 
 					myInterface.nameControlLabel.hidden = false; //Show error message
 		};
+
+		this.drawFeature = function(feature){
+
+			var keys = feature.getKeys();
+			var featureAtributesStr = '';
+			for (var i = 1, ii = keys.length; i < ii; i++) {
+				featureAtributesStr += 
+					'<wfs:Property>\n'+
+						'<wfs:Name>'+keys[i]+'</wfs:Name>\n'+
+							'<wfs:Value>'+feature.get(keys[i])+'</wfs:Value>\n'+
+			          '</wfs:Property>\n';
+			}
+
+			var str = 
+				'<Transaction service="WFS" version="1.1.0"\n'+
+			      ' xmlns:wfs="http://www.opengis.net/wfs"\n'+
+			      ' xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"\n'+
+			      ' xmlns:'+myInterface.store+'="'+myInterface.store+'"\n'+
+			      ' xmlns:gml="http://www.opengis.net/gml"\n'+
+			      ' xsi:schemaLocation="http://www.opengis.net/wfs http://schemas.opengis.net/wfs/1.0.0/WFS-transaction.xsd http://localhost:8080/geoserver/wfs/DescribeFeatureType?typename='+myInterface.store+':'+this.layerEditable+'">'+
+			        '<wfs:Insert>\n'+
+			          '<gml:featureMember>\n'+
+			            '<'+myInterface.store+':'+this.layerEditable+'>\n'+
+			              '<'+myInterface.store+':geometria>\n'+
+			                '<gml:'+geometry.getType()+' srsName="http://www.opengis.net/gml/srs/epsg.xml#900913">\n'+
+			                  '<gml:coordinates decimal="." cs="," ts=" ">'+geometry.getCoordinates()+'</gml:coordinates>\n'+
+			                '</gml:'+geometry.getType()+'>\n'+
+			              '</'+myInterface.store+':geometria>\n'+
+			              '<'+myInterface.store+':nome>'+this.form.name.value+'</'+myInterface.store+':nome>\n'+
+			            '</'+myInterface.store+':'+this.layerEditable+'>\n'+
+			          '</gml:featureMember>\n'+
+			        '</wfs:Insert>\n'+
+			      '</Transaction>\n';
+		}
+
+		this.modifyFeature = function(feature){
+			for(i in form.elements){
+				console.log(form.elements[i]);
+			}
+			var x = 1/0;
+			var geometry = feature.getGeometry();
+			var geometryType = geometry.getType();
+			var gml;
+			switch(geometryType){
+				case 'LineString':
+					gmlStr= this.gmlLineString(geometry.getCoordinates());
+					break;
+
+				case 'Polygon':
+					gmlStr = this.gmlPolygon(geometry.getCoordinates());
+					break;
+
+				case 'Point':
+					gmlStr= this.gmlPoint(geometry.getCoordinates());
+					break;
+			}
+
+			var featureAtributesStr = this.getParametersToXML(feature);
+
+			var str = 
+				'<Transaction service="WFS" version="1.1.0"\n'+
+			      ' xmlns:wfs="http://www.opengis.net/wfs"\n'+
+			      ' xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"\n'+
+			      ' xmlns:'+myInterface.store+'="'+myInterface.store+'"\n'+
+			      ' xmlns:ogc="http://www.opengis.net/ogc"\n'+
+			      ' xmlns:gml="http://www.opengis.net/gml"\n'+
+			      ' xsi:schemaLocation="http://www.opengis.net/wfs http://schemas.opengis.net/wfs/1.0.0/WFS-transaction.xsd http://localhost:8080/geoserver/wfs/DescribeFeatureType?typename='+myInterface.store+':'+this.layerEditable+'">'+
+			        '<wfs:Update typeName="'+myInterface.store+':'+this.layerEditable+'">\n'+
+			          '<wfs:Property>\n'+
+			            '<wfs:Name>'+feature.geometryName+'</wfs:Name>\n'+
+			            '<wfs:Value>\n'+
+			              gmlStr+
+			            '</wfs:Value>\n'+
+			          '</wfs:Property>\n'+
+			          	featureAtributesStr+
+			          '<ogc:Filter>\n'+
+			            '<ogc:FeatureId fid="'+feature.getId()+'"/>\n'+
+			          '</ogc:Filter>\n'+
+			        '</wfs:Update>\n'+
+			      '</Transaction>\n';
+			return str;
+		}
+
+		this.getParametersToXML = function(feature){
+			var featureAtributesStr = '';
+			var editTable = document.getElementById('editTable');
+			var rows = editTable.rows;
+			for (var i=1; i < rows.length; i++) {
+				var columms = rows[i].childNodes;
+				var name = columms[0].innerHTML;
+				var elements = columms[1].childNodes;
+				var value = elements[0].value;
+				featureAtributesStr += 
+					'<wfs:Property>\n'+
+						'<wfs:Name>'+name+'</wfs:Name>\n'+
+						'<wfs:Value>'+value+'</wfs:Value>\n'+
+					'</wfs:Property>\n';
+			}
+			return featureAtributesStr;
+		}
+
+		this.gmlPoint = function(coordinates){
+			return '<gml:Point srsName="http://www.opengis.net/gml/srs/epsg.xml#900913">\n'+
+						'<gml:coordinates decimal="." cs="," ts=" ">'+coordinates+'</gml:coordinates>\n'+
+					'</gml:Point>\n';
+		}
+
+		this.gmlPolygon = function(coordinates){
+			var coordinatesStr = coordinates.toString();
+			coordinatesStr = coordinatesStr.split(',').join(' ');
+			return 	'<gml:Polygon srsDimension="2" srsName="http://www.opengis.net/gml/srs/epsg.xml#900913">\n'+
+							'<gml:exterior>\n'+
+								'<gml:LinearRing>\n'+
+									'<gml:posList>'+coordinatesStr+'</gml:posList>\n'+
+								'</gml:LinearRing>\n'+
+							'</gml:exterior>\n'+
+						'</gml:Polygon>\n';
+		}
+
+		this.gmlLineString = function(coordinates){
+			var coordinatesStr = coordinates.toString();
+			coordinatesStr = coordinatesStr.split(',').join(' ');
+			return '<gml:LineString srsDimension="2" srsName="http://www.opengis.net/gml/srs/epsg.xml#900913">\n'+
+						'<gml:posList>'+coordinatesStr+'</gml:posList>\n'+
+					'</gml:LineString>\n';
+		}
 
 		this.cancelDrawInteraction = function(){
 			mySources.sourceInteraction.clear();
@@ -166,6 +248,7 @@ var Interface = {
 								"<td>"+feature.getId()+"</td>"+
 							"</tr>";
 				var strEditInfo = strInfo;
+				var geometry = feature.get(featureKeysArray[0]);
 
 				 // feature.get(0) = geometry = Object, then "i = 1"
 				for (var i = 1; i < featureKeysArray.length; i++){
@@ -197,32 +280,10 @@ var Interface = {
 			if(feature){
 				var deleteArray = [feature];
 				var WFS = new ol.format.WFS();
-				var node = WFS.writeTransaction(null,null,deleteArray,{
+				var node = WFS.writeTransaction(null, null ,deleteArray,{
 					featureNS: this.store,
 					featureType: this.layerEditable,
 					schemaLocation: "http://www.opengis.net/wfs http://schemas.opengis.net/wfs/1.0.0/WFS-transaction.xsd http://localhost:8080/geoserver/wfs/DescribeFeatureType?typename="+this.store+":"+this.layerEditable
-				});
-				var XMLS = new XMLSerializer();
-				var str = XMLS.serializeToString( node );
-				this.form.textXML.value = str;
-				this.form.submit();
-			}
-		}
-
-		this.modifyFeature = function(feature){
-			var collection = myInteractions.select.getFeatures();
-			var featureArray = collection.getArray();
-
-			if(featureArray){
-				var WFS = new ol.format.WFS();
-				var node = WFS.writeTransaction(null,featureArray,null,{
-					featureNS: this.store,
-					featureType: this.layerEditable,
-					schemaLocation: "http://localhost:8080/geoserver/wfs/DescribeFeatureType?typename="+this.store+":"+this.layerEditable,
-					gmlOptions: {
-						srsName: "EPSG:900913",
-						coordinates: "decimal='.' cs=',' ts=' '"
-					}
 				});
 				var XMLS = new XMLSerializer();
 				var str = XMLS.serializeToString( node );
@@ -259,21 +320,7 @@ var Interface = {
 			layerIndex = this.layersCollection.push(layer);
 			$('#'+layerId).attr('index',layerIndex);
 
-			var geometryType = geometry.getType();
-			switch(geometryType){
-				case geometryType == 'MultiLineString':
-					geometryType = 'LineString';
-					break;
-
-				case geometryType == 'MultiPoint':
-					geometryType = 'Point';
-					break;
-
-				case geometryType == 'MultiPolygon':
-					geometryType = 'Polygon';
-					break;
-			}
-			return geometryType;
+			return geometry.getType();
 		}
 
 		this.showLayer = function(layerId){

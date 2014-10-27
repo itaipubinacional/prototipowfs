@@ -142,10 +142,19 @@
 									$featureType = $json_obj->featureTypes->featureType;
 
 									foreach ($featureType as $i) {
+									$url = 'http://localhost:8080/geoserver/rest/layers/sid1.gg:'.$i->name.'.json';
+									$chIntern = curl_init($url);
+									curl_setopt($chIntern, CURLOPT_RETURNTRANSFER, true); //option to return string
+									curl_setopt($chIntern, CURLOPT_USERPWD, $passwordStr);
+									if($json_str = curl_exec($chIntern)){
+										$json_obj = json_decode($json_str);
+										$geometry = $json_obj->layer->defaultStyle->name;
+									}
+									curl_close($chIntern);
 									echo  "<tr>".
 											"<td>$i->name</td>".
 												"<td><a  href='#' id='$i->name' class='glyphicon glyphicon-eye-close'></a></td>".
-												"<td><input type='radio' layerName='$i->name' class='editColumn' name='editLayerRadioOption'></td>".
+												"<td><input type='radio' layerName='$i->name' layerType='$geometry' class='editColumn' name='editLayerRadioOption'></td>".
 											"</tr>";
 									}
 								}else{
@@ -182,7 +191,7 @@
 						<div class="modal-body">
 							<div class="panel panel-primary">
 								<div class="panel-heading">Edit Feature Infomation</div>
-								<table class="table table-hover" id="infoTable">
+								<table class="table table-hover" id="editTable">
 									<tbody id="editInfoTbody">
 									</tbody>
 								</table>
