@@ -142,19 +142,43 @@
 									$featureType = $json_obj->featureTypes->featureType;
 
 									foreach ($featureType as $i) {
+
 									$url = 'http://localhost:8080/geoserver/rest/layers/sid1.gg:'.$i->name.'.json';
 									$chIntern = curl_init($url);
 									curl_setopt($chIntern, CURLOPT_RETURNTRANSFER, true); //option to return string
 									curl_setopt($chIntern, CURLOPT_USERPWD, $passwordStr);
+
 									if($json_str = curl_exec($chIntern)){
 										$json_obj = json_decode($json_str);
 										$geometry = $json_obj->layer->defaultStyle->name;
 									}
+
 									curl_close($chIntern);
+
+									$url = $i->href;
+									$chAtributes = curl_init($url);
+									curl_setopt($chAtributes, CURLOPT_RETURNTRANSFER, true); //option to return string
+									curl_setopt($chAtributes, CURLOPT_USERPWD, $passwordStr);
+
+									if($json_str = curl_exec($chAtributes)){
+										$json_obj = json_decode($json_str);
+										$arrayAtributes = $json_obj->featureType->attributes->attribute;
+									}
+
+									$atributesStr='';
+									foreach($arrayAtributes as $j){
+										$atributesStr .= $j->name.",";
+									}
+
+									$atributesStr = substr($atributesStr,0,-1); // remove the last comma
+
+									curl_close($chAtributes);
+
 									echo  "<tr>".
 											"<td>$i->name</td>".
-												"<td><a  href='#' id='$i->name' class='glyphicon glyphicon-eye-close'></a></td>".
-												"<td><input type='radio' layerName='$i->name' layerType='$geometry' class='editColumn' name='editLayerRadioOption'></td>".
+												"<td><a  href='#' id='$i->name' layerType='$geometry' class='glyphicon glyphicon-eye-close'></a></td>".
+												"<td><input type='radio' layerName='$i->name' class='editColumn' name='editLayerRadioOption'></td>".
+												"<input id=".$i->name."Hidden type=hidden atributes='$atributesStr'>".
 											"</tr>";
 									}
 								}else{

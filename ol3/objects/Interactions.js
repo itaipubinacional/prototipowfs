@@ -9,9 +9,9 @@ var Interactions = {
 			type: 'Point' //default
 		});
 
-		this.setDrawType = function(geometryType){
+		this.setDrawType = function(geometryType, sourceInteraction){
 			this.draw = new ol.interaction.Draw({
-				source: mySources.sourceInteraction,
+				source: sourceInteraction,
 				type: geometryType //default
 			});
 		}

@@ -19,12 +19,6 @@ var Layers = {
 			});
 		}
 
-		this.vectorInteraction = new ol.layer.Vector({
-		  source: mySources.sourceInteraction,
-		  style: myStyle.styleFunction
-		});
-
-
 	  this.showMapQuest = function(){
 	      myLayers.mapQuest.setVisible(true);
 	      myLayers.OSM.setVisible(false);

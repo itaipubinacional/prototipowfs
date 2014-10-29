@@ -5,7 +5,7 @@ var Interface = {
 		this.nameControlLabel = document.getElementById('nameControl');
 
 		this.map = new ol.Map({
-			layers: [myLayers.OSM, myLayers.mapQuest, myLayers.vectorInteraction],
+			layers: [myLayers.OSM, myLayers.mapQuest],
 			target: document.getElementById('map'),
 			view: new ol.View({
 				center: [-6017386.113063093,-2863520.331444242],
@@ -102,46 +102,11 @@ var Interface = {
 
 		this.drawFeature = function(feature){
 
-			var keys = feature.getKeys();
-			var featureAtributesStr = '';
-			for (var i = 1, ii = keys.length; i < ii; i++) {
-				featureAtributesStr += 
-					'<wfs:Property>\n'+
-						'<wfs:Name>'+keys[i]+'</wfs:Name>\n'+
-							'<wfs:Value>'+feature.get(keys[i])+'</wfs:Value>\n'+
-			          '</wfs:Property>\n';
-			}
 
-			var str = 
-				'<Transaction service="WFS" version="1.1.0"\n'+
-			      ' xmlns:wfs="http://www.opengis.net/wfs"\n'+
-			      ' xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"\n'+
-			      ' xmlns:'+myInterface.store+'="'+myInterface.store+'"\n'+
-			      ' xmlns:gml="http://www.opengis.net/gml"\n'+
-			      ' xsi:schemaLocation="http://www.opengis.net/wfs http://schemas.opengis.net/wfs/1.0.0/WFS-transaction.xsd http://localhost:8080/geoserver/wfs/DescribeFeatureType?typename='+myInterface.store+':'+this.layerEditable+'">'+
-			        '<wfs:Insert>\n'+
-			          '<gml:featureMember>\n'+
-			            '<'+myInterface.store+':'+this.layerEditable+'>\n'+
-			              '<'+myInterface.store+':geometria>\n'+
-			                '<gml:'+geometry.getType()+' srsName="http://www.opengis.net/gml/srs/epsg.xml#900913">\n'+
-			                  '<gml:coordinates decimal="." cs="," ts=" ">'+geometry.getCoordinates()+'</gml:coordinates>\n'+
-			                '</gml:'+geometry.getType()+'>\n'+
-			              '</'+myInterface.store+':geometria>\n'+
-			              '<'+myInterface.store+':nome>'+this.form.name.value+'</'+myInterface.store+':nome>\n'+
-			            '</'+myInterface.store+':'+this.layerEditable+'>\n'+
-			          '</gml:featureMember>\n'+
-			        '</wfs:Insert>\n'+
-			      '</Transaction>\n';
-		}
-
-		this.modifyFeature = function(feature){
-			for(i in form.elements){
-				console.log(form.elements[i]);
-			}
-			var x = 1/0;
 			var geometry = feature.getGeometry();
 			var geometryType = geometry.getType();
-			var gml;
+			var gmlStr;
+
 			switch(geometryType){
 				case 'LineString':
 					gmlStr= this.gmlLineString(geometry.getCoordinates());
@@ -156,7 +121,48 @@ var Interface = {
 					break;
 			}
 
-			var featureAtributesStr = this.getParametersToXML(feature);
+			var featureAtributesStr = this.getParametersToXMLDraw(feature);
+
+
+			var str = 
+				'<Transaction service="WFS" version="1.1.0"\n'+
+			      ' xmlns:wfs="http://www.opengis.net/wfs"\n'+
+			      ' xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"\n'+
+			      ' xmlns:'+myInterface.store+'="'+myInterface.store+'"\n'+
+			      ' xmlns:gml="http://www.opengis.net/gml"\n'+
+			      ' xsi:schemaLocation="http://www.opengis.net/wfs http://schemas.opengis.net/wfs/1.0.0/WFS-transaction.xsd http://localhost:8080/geoserver/wfs/DescribeFeatureType?typename='+myInterface.store+':'+this.layerEditable+'">'+
+			        '<wfs:Insert>\n'+
+			          '<gml:featureMember>\n'+
+			            '<'+myInterface.store+':'+this.layerEditable+'>\n'+
+			              '<'+myInterface.store+':'+feature.geometryName+'>\n'+
+			              		gmlStr+
+			              '</'+myInterface.store+':'+feature.geometryName+'>\n'+
+			              
+			            '</'+myInterface.store+':'+this.layerEditable+'>\n'+
+			          '</gml:featureMember>\n'+
+			        '</wfs:Insert>\n'+
+			      '</Transaction>\n';
+		}
+
+		this.modifyFeature = function(feature){
+
+			var geometry = feature.getGeometry();
+			var geometryType = geometry.getType();
+			var gmlStr;
+
+			switch(geometryType){
+				case 'LineString':
+					gmlStr= this.gmlLineString(geometry.getCoordinates());
+					break;
+
+				case 'Polygon':
+					gmlStr = this.gmlPolygon(geometry.getCoordinates());
+					break;
+
+				case 'Point':
+					gmlStr= this.gmlPoint(geometry.getCoordinates());
+					break;
+			}
 
 			var str = 
 				'<Transaction service="WFS" version="1.1.0"\n'+
@@ -182,7 +188,22 @@ var Interface = {
 			return str;
 		}
 
-		this.getParametersToXML = function(feature){
+		this.getParametersToXMLDraw = function(feature){
+			var featureAtributesStr = '';
+			var editTable = document.getElementById('editTable');
+			var rows = editTable.rows;
+			for (var i=1; i < rows.length; i++) {
+				var columms = rows[i].childNodes;
+				var name = columms[0].innerHTML;
+				var elements = columms[1].childNodes;
+				var value = elements[0].value;
+				featureAtributesStr += 
+					'<'+myInterface.store+':'+name+'>'+value+'</'+myInterface.store+':'+name+'>\n';
+			}
+			return featureAtributesStr;
+		}
+
+		this.getParametresToXMLModify = function(feature){
 			var featureAtributesStr = '';
 			var editTable = document.getElementById('editTable');
 			var rows = editTable.rows;
@@ -225,12 +246,6 @@ var Interface = {
 						'<gml:posList>'+coordinatesStr+'</gml:posList>\n'+
 					'</gml:LineString>\n';
 		}
-
-		this.cancelDrawInteraction = function(){
-			mySources.sourceInteraction.clear();
-			var collection = myInteractions.select.getFeatures();
-			collection.clear();
-		};
 
 		this.SelectFeature = function(pixel) {
 			var feature = this.map.forEachFeatureAtPixel(pixel, function(feature, layer) {
@@ -294,7 +309,6 @@ var Interface = {
 
 		this.layerEditable = null;
 		this.setEdit = function(layerId){
-
 			//get the index where the layer is inserted in the collection
 			var layerIndex = $('#'+layerId).attr('index');
 
@@ -302,6 +316,10 @@ var Interface = {
 				this.showLayer(layerId);
 
 			this.layerEditable = layerId;
+
+			if(myInteractions.isDraw){
+				myOptions.DrawOption();
+			}
 
 			$('#drawOption').attr('disabled', false);
 			$('#modifyOption').attr('disabled', false);
@@ -312,15 +330,27 @@ var Interface = {
 		};
 
 		this.getLayerType = function(layerId){
-			var layerIndex = $('#'+layerId).attr('index');
-			var layer = this.layersCollection.removeAt(layerIndex);
-			var source = layer.getSource();
-			var featuresArray = source.getFeatures();
-			var geometry = featuresArray[featuresArray.length-1].getGeometry()
-			layerIndex = this.layersCollection.push(layer);
-			$('#'+layerId).attr('index',layerIndex);
+			var layerType = $('#'+layerId).attr('layerType');
+			switch(layerType){
+				case 'line': return 'LineString';
+				case 'polygon': return 'Polygon';
+				case 'point' : return 'Point';
+			}
+		}
 
-			return geometry.getType();
+		this.getLayerAtributes = function(layerId){
+			var atributesStr = $('#'+layerId+'Hidden').attr('atributes');
+			return atributesStr.split(',');
+		}
+
+		this.getSource = function(layerId){
+			var layerIndex = $('#'+myInterface.layerEditable).attr('index');
+			var layer = myInterface.layersCollection.removeAt(layerIndex);
+
+			layerIndex = myInterface.layersCollection.push(layer);
+			$('#'+myInterface.layerEditable).attr('index',layerIndex);
+
+			return layer.getSource();
 		}
 
 		this.showLayer = function(layerId){

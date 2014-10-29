@@ -20,10 +20,6 @@ window.onload = function(){
 
 	$('#toolsOptions label').on('change', function(){
 		myInterface.setOption($(this).attr('id')); 
-	}); 
-
-	$('#cancelButton').on('click', function(){
-		myInterface.cancelDrawInteraction();
 	});
 
 	$('#submitButton').on('click', function(){
