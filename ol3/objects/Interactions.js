@@ -12,11 +12,13 @@ var Interactions = {
 		this.setDrawType = function(geometryType, sourceInteraction){
 			this.draw = new ol.interaction.Draw({
 				source: sourceInteraction,
-				type: geometryType //default
+				type: geometryType
 			});
 		}
 
 		this.select = new ol.interaction.Select();
+
+		this.featureToDraw = null;
 
 		this.modify = new ol.interaction.Modify({
 		  features: this.select.getFeatures()
@@ -30,6 +32,6 @@ var Interactions = {
 			mySources.sourceInteraction.clear();
 			var collection = this.select.getFeatures();
 			collection.clear();
-		};
+		}
 	}
 }

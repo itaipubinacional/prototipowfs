@@ -19,8 +19,8 @@
 		<script src="js/bootstrap.min.js"></script>
 
 		<!-- OpenLayers 3 -->
-		<link rel="stylesheet" href="http://openlayers.org/en/v3.0.0/css/ol.css" type="text/css">
-		<script src="http://openlayers.org/en/v3.0.0/build/ol-debug.js" type="text/javascript"></script>
+		<link rel="stylesheet" href="v3.0.0/css/ol.css" type="text/css">
+		<script src="v3.0.0/build/ol.js" type="text/javascript"></script>
 
 		<!-- "Imports" -->
 		<script src = "objects/Interface.js" type="text/javascript"></script>
@@ -167,7 +167,11 @@
 
 									$atributesStr='';
 									foreach($arrayAtributes as $j){
-										$atributesStr .= $j->name.",";
+										if(false === strpos($j->binding, "geom"))
+											$atributesStr .= $j->name.",";
+										else{
+											$geometryName = $j->name;
+										}
 									}
 
 									$atributesStr = substr($atributesStr,0,-1); // remove the last comma
@@ -176,7 +180,7 @@
 
 									echo  "<tr>".
 											"<td>$i->name</td>".
-												"<td><a  href='#' id='$i->name' layerType='$geometry' class='glyphicon glyphicon-eye-close'></a></td>".
+												"<td><a  href='#' id='$i->name' geometryName=$geometryName layerType='$geometry' class='glyphicon glyphicon-eye-close'></a></td>".
 												"<td><input type='radio' layerName='$i->name' class='editColumn' name='editLayerRadioOption'></td>".
 												"<input id=".$i->name."Hidden type=hidden atributes='$atributesStr'>".
 											"</tr>";

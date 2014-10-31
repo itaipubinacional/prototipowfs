@@ -90,7 +90,7 @@ var Interface = {
 				var geometry = feature.getGeometry();
 
 				if(myInteractions.isDraw)
-					var str = this.drawFeature(feature);
+					var str = this.drawFeature(myInteractions.featureToDraw);
 				else
 					var str = this.modifyFeature(feature);
 
@@ -122,7 +122,7 @@ var Interface = {
 			}
 
 			var featureAtributesStr = this.getParametersToXMLDraw(feature);
-
+			var geometryName = $('#'+this.layerEditable).attr('geometryName');
 
 			var str = 
 				'<Transaction service="WFS" version="1.1.0"\n'+
@@ -134,14 +134,19 @@ var Interface = {
 			        '<wfs:Insert>\n'+
 			          '<gml:featureMember>\n'+
 			            '<'+myInterface.store+':'+this.layerEditable+'>\n'+
-			              '<'+myInterface.store+':'+feature.geometryName+'>\n'+
+			              '<'+myInterface.store+':'+geometryName+'>\n'+
+
 			              		gmlStr+
-			              '</'+myInterface.store+':'+feature.geometryName+'>\n'+
-			              
+
+			              '</'+myInterface.store+':'+geometryName+'>\n'+
+
+			              		featureAtributesStr+
+
 			            '</'+myInterface.store+':'+this.layerEditable+'>\n'+
 			          '</gml:featureMember>\n'+
 			        '</wfs:Insert>\n'+
 			      '</Transaction>\n';
+			return str;
 		}
 
 		this.modifyFeature = function(feature){
@@ -163,6 +168,8 @@ var Interface = {
 					gmlStr= this.gmlPoint(geometry.getCoordinates());
 					break;
 			}
+
+			var featureAtributesStr = this.getParametresToXMLModify(feature);
 
 			var str = 
 				'<Transaction service="WFS" version="1.1.0"\n'+
@@ -192,7 +199,7 @@ var Interface = {
 			var featureAtributesStr = '';
 			var editTable = document.getElementById('editTable');
 			var rows = editTable.rows;
-			for (var i=1; i < rows.length; i++) {
+			for (var i=0; i < rows.length; i++) {
 				var columms = rows[i].childNodes;
 				var name = columms[0].innerHTML;
 				var elements = columms[1].childNodes;
@@ -207,7 +214,7 @@ var Interface = {
 			var featureAtributesStr = '';
 			var editTable = document.getElementById('editTable');
 			var rows = editTable.rows;
-			for (var i=1; i < rows.length; i++) {
+			for (var i=1; i < rows.length; i++) { //the first atribute is ID then the "for" begins at i = 1
 				var columms = rows[i].childNodes;
 				var name = columms[0].innerHTML;
 				var elements = columms[1].childNodes;
@@ -252,7 +259,7 @@ var Interface = {
 				return feature;
 			});
 
-			if (feature){
+			if (feature && !myInteractions.isDraw){
 				if(this.layerEditable)
 					$('#editButton').attr('disabled', false);
 
@@ -285,6 +292,22 @@ var Interface = {
 				$('#infoTbody').html('');
 				$('#editInfoTbody').html(strEditInfo);
 			}
+		}
+
+		this.addAtribbutesToEditTable = function(featureKeysArray){
+				var strEditInfo = '';
+				console.log(featureKeysArray);
+				for ( i in featureKeysArray ){
+					strEditInfo += 
+								"<tr>"+
+									"<th>"+featureKeysArray[i]+"</th>"+
+									"<td><input class='form-control' placeHolder='"+featureKeysArray[i]+"' /></td>"+
+								"</tr>";
+				}
+				console.log(strEditInfo);
+				$('#editInfoTbody').html(strEditInfo);
+				console.log($('#editInfoTbody').html());
+				
 		}
 
 		this.DeleteFeature = function(pixel){
@@ -344,11 +367,11 @@ var Interface = {
 		}
 
 		this.getSource = function(layerId){
-			var layerIndex = $('#'+myInterface.layerEditable).attr('index');
-			var layer = myInterface.layersCollection.removeAt(layerIndex);
+			var layerIndex = $('#'+this.layerEditable).attr('index');
+			var layer = this.layersCollection.removeAt(layerIndex);
 
-			layerIndex = myInterface.layersCollection.push(layer);
-			$('#'+myInterface.layerEditable).attr('index',layerIndex);
+			layerIndex = this.layersCollection.push(layer);
+			$('#'+this.layerEditable).attr('index',layerIndex);
 
 			return layer.getSource();
 		}

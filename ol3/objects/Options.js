@@ -8,19 +8,27 @@ var Options = {
 		}
 
 		this.DrawOption = function(){
-			var geometryName = myInterface.getLayerType(myInterface.layerEditable);
+			var layerForDraw = myInterface.layerEditable;
+			var geometryName = myInterface.getLayerType(layerForDraw);
 			myInterface.map.removeInteraction(myInteractions.draw);
 
-			var source = myInterface.getSource(myInterface.layerEditable);
+			var source = myInterface.getSource(layerForDraw);
 
 			myInteractions.setDrawType(geometryName, source);
 
 			myInterface.map.addInteraction(myInteractions.draw);
 			
 			myInteractions.isDraw = true;
-			myInteractions.listenerKey = myInterface.map.on('click', function() { //Returns Key of Listener
-				$( myInterface.myModal ).modal('show');
-			});
+
+			myInteractions.draw.on('drawend', function(evt){
+				var arrayAtributes = myInterface.getLayerAtributes(layerForDraw);
+				myInterface.addAtribbutesToEditTable(arrayAtributes);
+
+				myInteractions.featureToDraw = evt.feature;
+
+				$('#myModal').modal('show');
+
+			}, null);
 		}
 
 		this.ModifyOption = function(){
