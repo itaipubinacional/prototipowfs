@@ -1,6 +1,33 @@
 var Options = {
 	Class: function(){
 
+
+		this.alternateEditOption = function(){
+
+			var disabled = $('#drawOption').attr('disabled');
+
+					if(disabled){
+						$('#layersTable .editColumn').show();
+
+					}else{  // not disnabled
+
+						$('#drawOption').attr('disabled', true);
+						$('#modifyOption').attr('disabled', true);
+						$('#deleteOption').attr('disabled', true);
+						$('#saveButton').attr('disabled', true);
+
+						$('#editButton').attr('disabled', true);
+
+						$('#layersTable .editColumn').hide();
+						$('#infoTable .editColumn').off();
+						$('#infoTbody').html('');
+
+						this.layerEditable = null;
+					}
+			window.json_layer_structure.featureTypes.editMode = true;
+
+		}
+
 		this.SelectOption = function(){
 			myInteractions.listenerKey = myInterface.map.on('click', function( evt ) { //Returns Key of Listener
 				myInterface.SelectFeature(evt.pixel);

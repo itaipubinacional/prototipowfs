@@ -30,7 +30,7 @@
 		<script src = "objects/Interactions.js" type="text/javascript"></script>
 		<script src = "objects/Options.js" type="text/javascript"></script>
 
-		<title>My Map</title>
+		<title>Prototype WFS</title>
 		<link rel="shortcut icon" href="fonts/icon.png">
 	</head>
 
@@ -38,7 +38,7 @@
 		<div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
 			<div class="container-fluid">
 				<div class="navbar-header">
-					<a class="navbar-brand" href="">My Map</a>
+					<a class="navbar-brand" href="">Prototype WFS</a>
 				</div>
 				<ul class="nav navbar-nav navbar-right">
 					<li class="dropdown">
@@ -112,7 +112,7 @@
 									'</div>';
 						}
 					}
-					session_destroy();
+
 				?>
 				<div class="row">
 					<div id="map" class="map"></div>
@@ -140,6 +140,26 @@
 								if($json_str = curl_exec($ch)){ // Execute the curl request and return false if failed
 									$json_obj = json_decode($json_str);
 									$featureType = $json_obj->featureTypes->featureType;
+
+									if(@$_SESSION['json_layer_structure']){
+										echo '<script>'.
+												'var json_layer_structure = '.$_SESSION['json_layer_structure'].
+											'</script>';
+									}else{
+										$json_obj->featureTypes->editMode = false;
+									    
+									    foreach ($json_obj->featureTypes->featureType as $layer) {
+									    	$layer->visible = false;
+									    	$layer->editable = false;
+									    }
+
+									    $json_str = json_encode($json_obj);
+										echo 
+											'<script>'.
+												'var json_layer_structure = '.$json_str.
+											'</script>';
+
+									}
 
 									foreach ($featureType as $i) {
 
@@ -181,7 +201,7 @@
 									echo  "<tr>".
 											"<td>$i->name</td>".
 												"<td><a  href='#' id='$i->name' geometryName=$geometryName layerType='$geometry' class='glyphicon glyphicon-eye-close'></a></td>".
-												"<td><input type='radio' layerName='$i->name' class='editColumn' name='editLayerRadioOption'></td>".
+												"<td><input type='radio' id=".$i->name."Checkbox layerName='$i->name' class='editColumn' name='editLayerRadioOption'></td>".
 												"<input id=".$i->name."Hidden type=hidden atributes='$atributesStr'>".
 											"</tr>";
 									}
@@ -190,6 +210,8 @@
 								}
 
 								curl_close($ch); // free resources if curl handle will not be reused
+
+								session_destroy();
 							?>
 						</div>
 					</tbody>
@@ -227,6 +249,7 @@
 						</div>
 						<div class="modal-footer">
 							<input type="hidden" name="textXML"/>
+							<input type="hidden" name="json_layer_structure"/>
 							<input type="button" class="btn btn-default" id="cancelButton" data-dismiss="modal" value="Cancel"/>
 							<input type="button" class="btn btn-primary" id="submitButton" value="Save changes"/>
 							</div>

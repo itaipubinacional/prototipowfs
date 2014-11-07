@@ -14,6 +14,7 @@ var Interface = {
 			})
 		});
 
+		this.object
 	    this.layersCollection = this.map.getLayers();
 		this.interactionsCollection = this.map.getInteractions();
 		this.map.addInteraction(myInteractions.select);
@@ -25,27 +26,7 @@ var Interface = {
 			switch(optionId){
 
 				case 'alternateEditOption':
-					var disabled = $('#drawOption').attr('disabled');
-
-					if(disabled){
-						$('#layersTable .editColumn').show();
-
-					}else{  // not disnabled
-
-						$('#drawOption').attr('disabled', true);
-						$('#modifyOption').attr('disabled', true);
-						$('#deleteOption').attr('disabled', true);
-						$('#saveButton').attr('disabled', true);
-
-						$('#editButton').attr('disabled', true);
-
-						$('#layersTable .editColumn').hide();
-						$('#infoTable .editColumn').off();
-						$('#infoTbody').html('');
-
-						this.layerEditable = null;
-					}
-
+					myOptions.alternateEditOption();
 					break;
 
 				case 'selectOption':
@@ -95,7 +76,10 @@ var Interface = {
 					var str = this.modifyFeature(feature);
 
 				this.form.textXML.value = str;
-				this.form.submit();
+
+					var jsonText = JSON.stringify(window.json_layer_structure);
+					this.form.json_layer_structure.value = jsonText;
+					this.form.submit();
 				}else 
 					myInterface.nameControlLabel.hidden = false; //Show error message
 		};
@@ -296,7 +280,6 @@ var Interface = {
 
 		this.addAtribbutesToEditTable = function(featureKeysArray){
 				var strEditInfo = '';
-				console.log(featureKeysArray);
 				for ( i in featureKeysArray ){
 					strEditInfo += 
 								"<tr>"+
@@ -304,9 +287,7 @@ var Interface = {
 									"<td><input class='form-control' placeHolder='"+featureKeysArray[i]+"' /></td>"+
 								"</tr>";
 				}
-				console.log(strEditInfo);
 				$('#editInfoTbody').html(strEditInfo);
-				console.log($('#editInfoTbody').html());
 				
 		}
 
@@ -326,6 +307,9 @@ var Interface = {
 				var XMLS = new XMLSerializer();
 				var str = XMLS.serializeToString( node );
 				this.form.textXML.value = str;
+
+				var jsonText = JSON.stringify(window.json_layer_structure);
+				this.form.json_layer_structure.value = jsonText;
 				this.form.submit();
 			}
 		}
@@ -350,6 +334,7 @@ var Interface = {
 			$('#saveButton').attr('disabled', false);
 			$('#editButton').attr('disabled', true);
 
+			this.setLayerEditableOnJson(layerId);
 		};
 
 		this.getLayerType = function(layerId){
@@ -389,13 +374,39 @@ var Interface = {
 					var visibility = visibility.replace('close', 'open');
 					$('#'+layerId).attr('class', visibility);
 
+					this.setLayerVisibilityOnJson(layerId, true);
 
 				}else{  //the layer is visible
 
 					this.layersCollection.removeAt(parseInt($('#'+layerId).attr('index'))); //index of the element to delete
 					$('#'+layerId).attr('index', null);
 					$('#'+layerId).attr('class',visibility.replace('open','close'));
+					this.setLayerVisibilityOnJson(layerId, false);
 				}
+		}
+
+		this.setLayerVisibilityOnJson = function(layerId, visible){
+			var layers = window.json_layer_structure.featureTypes.featureType;
+
+			for( j in layers){
+				if(layers[j].name == layerId)
+					layers[j].visible = visible;
+			}
+
+			window.json_layer_structure.featureTypes.featureType = layers;
+		}
+
+		this.setLayerEditableOnJson = function(layerId){
+			var layers = window.json_layer_structure.featureTypes.featureType;
+
+			for( j in layers){
+				if(layers[j].name == layerId)
+					layers[j].editable = true;
+				else
+					layers[j].editable = false;
+			}
+
+			window.json_layer_structure.featureTypes.featureType = layers;
 		}
 
 		this.changeMapTo = function(map){
