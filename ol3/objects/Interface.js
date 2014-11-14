@@ -4,17 +4,32 @@ var Interface = {
 		this.form = document.getElementById('form');
 		this.nameControlLabel = document.getElementById('nameControl');
 
-		this.map = new ol.Map({
-			layers: [myLayers.OSM, myLayers.mapQuest],
-			target: document.getElementById('map'),
-			view: new ol.View({
-				center: [-6017386.113063093,-2863520.331444242],
-				maxZoom: 19,
-				zoom: 9
-			})
+		this.projection = new ol.proj.Projection({
+			code: 'EPSG:31981',
+			units: 'degrees'
 		});
 
-		this.object
+		ol.proj.addProjection(this.projection);
+
+		this.wmsView = new ol.View({
+			center: [755381, 7210283],
+			projection: this.projection,
+			zoom: 1,
+			maxResolution: 351.5628408856028,
+		});
+
+		this.wfsView = new ol.View({
+			center: [-6017386,-2863520],
+			maxZoom: 19,
+			zoom: 9
+		});
+
+		this.map = new ol.Map({
+			layers: [myLayers.OSM, myLayers.mapQuest, myLayers.wmsLayer],
+			target: document.getElementById('map'),
+			view: this.wfsView //default
+		});
+
 	    this.layersCollection = this.map.getLayers();
 		this.interactionsCollection = this.map.getInteractions();
 		this.map.addInteraction(myInteractions.select);
@@ -413,8 +428,10 @@ var Interface = {
 
 			if(map == "mapQuest")
 				myLayers.showMapQuest();
-			else
+			else if(map == "OSM")
 				myLayers.showOSM();
+			else
+				myLayers.showWmsLayer();
 		}
 
 	}

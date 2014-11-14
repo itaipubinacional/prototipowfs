@@ -34,7 +34,6 @@ window.onload = function(){
 		myInterface.changeMapTo($(this).attr('id'));
 	});
 
-	console.log(window.json_layer_structure);
 	initializeLayers(window.json_layer_structure);
 };
 
@@ -49,12 +48,9 @@ window.onload = function(){
  		if(layers[i].visible)
  			myInterface.showLayer(layers[i].name);
 
- 		console.log(i);
  		if(layers[i].editable){
  			myInterface.setEdit(layers[i].name);
  		     document.getElementById(layers[i].name+'Checkbox').checked = true;
- 		     console.log(layers[i].name);
- 		     console.log(document.getElementById(layers[i].name+'Checkbox').checked);
  		}
  	}
  }

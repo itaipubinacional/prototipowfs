@@ -20,7 +20,7 @@
 
 		<!-- OpenLayers 3 -->
 		<link rel="stylesheet" href="v3.0.0/css/ol.css" type="text/css">
-		<script src="v3.0.0/build/ol.js" type="text/javascript"></script>
+		<script src="v3.0.0/build/ol-debug.js" type="text/javascript"></script>
 
 		<!-- "Imports" -->
 		<script src = "objects/Interface.js" type="text/javascript"></script>
@@ -48,6 +48,7 @@
 						<ul class="dropdown-menu" id="changeMapTo">
 							<li><a href="#" id="mapQuest">Map Quest</a></li>
 							<li><a href="#" id="OSM">Open Street Maps</a></li>
+							<li><a href="#" id="ImageMosaic">WMS Image Mosaic</a></li>
 						</ul>
 					</li>
 				</ul>
