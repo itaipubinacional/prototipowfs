@@ -4,14 +4,30 @@ var Interface = {
 		this.form = document.getElementById('form');
 		this.nameControlLabel = document.getElementById('nameControl');
 
+		this.projection = new ol.proj.Projection({
+			code: 'EPSG:31981',
+			units: 'degrees'
+		});
+
+		ol.proj.addProjection(this.projection);
+
+		this.wmsView = new ol.View({
+			center: [755381, 7210283],
+			projection: this.projection,
+			zoom: 1,
+			maxResolution: 351.5628408856028,
+		});
+
+		this.wfsView = new ol.View({
+			center: [-6017386,-2863520],
+			maxZoom: 19,
+			zoom: 9
+		});
+
 		this.map = new ol.Map({
-			layers: [myLayers.OSM, myLayers.mapQuest],
+			layers: [myLayers.OSM, myLayers.mapQuest, myLayers.wmsLayer],
 			target: document.getElementById('map'),
-			view: new ol.View({
-				center: [-6017386.113063093,-2863520.331444242],
-				maxZoom: 19,
-				zoom: 9
-			})
+			view: this.wfsView //default
 		});
 
 	    this.layersCollection = this.map.getLayers();
@@ -25,27 +41,7 @@ var Interface = {
 			switch(optionId){
 
 				case 'alternateEditOption':
-					var disabled = $('#drawOption').attr('disabled');
-
-					if(disabled){
-						$('#layersTable .editColumn').show();
-
-					}else{  // not disnabled
-
-						$('#drawOption').attr('disabled', true);
-						$('#modifyOption').attr('disabled', true);
-						$('#deleteOption').attr('disabled', true);
-						$('#saveButton').attr('disabled', true);
-
-						$('#editButton').attr('disabled', true);
-
-						$('#layersTable .editColumn').hide();
-						$('#infoTable .editColumn').off();
-						$('#infoTbody').html('');
-
-						this.layerEditable = null;
-					}
-
+					myOptions.alternateEditOption();
 					break;
 
 				case 'selectOption':
@@ -95,13 +91,15 @@ var Interface = {
 					var str = this.modifyFeature(feature);
 
 				this.form.textXML.value = str;
-				this.form.submit();
+
+					var jsonText = JSON.stringify(window.json_layer_structure);
+					this.form.json_layer_structure.value = jsonText;
+					this.form.submit();
 				}else 
 					myInterface.nameControlLabel.hidden = false; //Show error message
 		};
 
 		this.drawFeature = function(feature){
-
 
 			var geometry = feature.getGeometry();
 			var geometryType = geometry.getType();
@@ -296,7 +294,6 @@ var Interface = {
 
 		this.addAtribbutesToEditTable = function(featureKeysArray){
 				var strEditInfo = '';
-				console.log(featureKeysArray);
 				for ( i in featureKeysArray ){
 					strEditInfo += 
 								"<tr>"+
@@ -304,9 +301,7 @@ var Interface = {
 									"<td><input class='form-control' placeHolder='"+featureKeysArray[i]+"' /></td>"+
 								"</tr>";
 				}
-				console.log(strEditInfo);
 				$('#editInfoTbody').html(strEditInfo);
-				console.log($('#editInfoTbody').html());
 				
 		}
 
@@ -326,16 +321,26 @@ var Interface = {
 				var XMLS = new XMLSerializer();
 				var str = XMLS.serializeToString( node );
 				this.form.textXML.value = str;
+
+				var jsonText = JSON.stringify(window.json_layer_structure);
+				this.form.json_layer_structure.value = jsonText;
 				this.form.submit();
 			}
 		}
 
 		this.layerEditable = null;
 		this.setEdit = function(layerId){
-			//get the index where the layer is inserted in the collection
-			var layerIndex = $('#'+layerId).attr('index');
+			
+			var isFounded = false;
+			this.layersCollection.forEach( function(element, index){
+					if(element.values_ && (element.values_.layerId == layerId)){
+						isFounded = true;
+					}
+				},
+				this.layersCollection
+			);
 
-			if(!layerIndex) // Is there the layer on the list ?
+			if(!isFounded)
 				this.showLayer(layerId);
 
 			this.layerEditable = layerId;
@@ -350,6 +355,7 @@ var Interface = {
 			$('#saveButton').attr('disabled', false);
 			$('#editButton').attr('disabled', true);
 
+			this.setLayerEditableOnJson(layerId);
 		};
 
 		this.getLayerType = function(layerId){
@@ -367,13 +373,15 @@ var Interface = {
 		}
 
 		this.getSource = function(layerId){
-			var layerIndex = $('#'+this.layerEditable).attr('index');
-			var layer = this.layersCollection.removeAt(layerIndex);
-
-			layerIndex = this.layersCollection.push(layer);
-			$('#'+this.layerEditable).attr('index',layerIndex);
-
-			return layer.getSource();
+			var sourceReturn = undefined;
+			this.layersCollection.forEach( function(element, index){
+					if(element.values_ && (element.values_.layerId == layerId)){
+						sourceReturn =  element.source_;
+					}
+				},
+				this.layersCollection
+			);
+			return sourceReturn;
 		}
 
 		this.showLayer = function(layerId){
@@ -383,27 +391,60 @@ var Interface = {
 
 					var layer = myLayers.newLayer(this.store, layerId);
 
-					var layerIndex =  this.layersCollection.push(layer); //the collection returns the layer's index
-					$('#'+layerId).attr('index', layerIndex);
+					this.layersCollection.push(layer);
 
 					var visibility = visibility.replace('close', 'open');
 					$('#'+layerId).attr('class', visibility);
 
+					this.setLayerVisibilityOnJson(layerId, true);
 
 				}else{  //the layer is visible
 
-					this.layersCollection.removeAt(parseInt($('#'+layerId).attr('index'))); //index of the element to delete
-					$('#'+layerId).attr('index', null);
+					this.layersCollection.forEach( function(element, index){
+							if(element.values_ && (element.values_.layerId == layerId)){
+								this.removeAt(index);
+							}
+						},
+						this.layersCollection
+					);
+
 					$('#'+layerId).attr('class',visibility.replace('open','close'));
+					this.setLayerVisibilityOnJson(layerId, false);
 				}
+		}
+
+		this.setLayerVisibilityOnJson = function(layerId, visible){
+			var layers = window.json_layer_structure.featureTypes.featureType;
+
+			for( j in layers){
+				if(layers[j].name == layerId)
+					layers[j].visible = visible;
+			}
+
+			window.json_layer_structure.featureTypes.featureType = layers;
+		}
+
+		this.setLayerEditableOnJson = function(layerId){
+			var layers = window.json_layer_structure.featureTypes.featureType;
+
+			for( j in layers){
+				if(layers[j].name == layerId)
+					layers[j].editable = true;
+				else
+					layers[j].editable = false;
+			}
+
+			window.json_layer_structure.featureTypes.featureType = layers;
 		}
 
 		this.changeMapTo = function(map){
 
 			if(map == "mapQuest")
 				myLayers.showMapQuest();
-			else
+			else if(map == "OSM")
 				myLayers.showOSM();
+			else
+				myLayers.showWmsLayer();
 		}
 
 	}

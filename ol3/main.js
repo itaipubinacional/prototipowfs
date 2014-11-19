@@ -29,4 +29,37 @@ window.onload = function(){
 	$('#saveButton').on('click', function(){
 		myInterface.submitXml();
 	});
+
+	$('#changeMapTo a').on('click', function(){
+		myInterface.changeMapTo($(this).attr('id'));
+	});
+
+	initializeLayers(window.json_layer_structure);
 };
+
+ function initializeLayers(json_layer_structure){
+ 	if(json_layer_structure.featureTypes.editMode){
+ 		myOptions.alternateEditOption();
+ 		$('#alternateEditOption').attr('class', 'btn btn-default active');
+ 	}
+ 	var layers = json_layer_structure.featureTypes.featureType;
+
+ 	for(i in layers){
+ 		if(layers[i].visible)
+ 			myInterface.showLayer(layers[i].name);
+
+ 		if(layers[i].editable){
+ 			myInterface.setEdit(layers[i].name);
+ 		     document.getElementById(layers[i].name+'Checkbox').checked = true;
+ 		}
+ 	}
+ }
+
+ $.ajax({
+	url: 'http://localhost:8080/geoserver/sid1.gg/wms?SERVICE=WMS&VERSION=1.3.0&EXCEPTIONS=text/javascript&LAYERS=sid1.gg%3Aall_images&format_options=callback:jsonParse',
+	dataType: 'jsonp'
+ });
+
+function jsonParse(response){
+	console.log(response);
+}

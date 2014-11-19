@@ -42,6 +42,7 @@
   }
 
   fwrite($logfh, $buffer."\n");
+  fwrite($logfh, $_REQUEST['json_layer_structure']);
   curl_close($ch); // free resources if curl handle will not be reused
   fclose($logfh);  // close logfile
   $striped = strip_tags($buffer); //remove tags html
@@ -53,5 +54,6 @@
     $_SESSION['Successful'] = "no";
     Header('Location: index.php');
   }
+  $_SESSION['json_layer_structure'] = $_REQUEST['json_layer_structure']; //json structure for layer interface sets control
 ?>
 
