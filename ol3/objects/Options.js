@@ -40,7 +40,6 @@ var Options = {
 			myInterface.map.removeInteraction(myInteractions.draw);
 
 			var source = myInterface.getSource(layerForDraw);
-			console.log(source);
 
 			myInteractions.setDrawType(geometryName, source);
 
