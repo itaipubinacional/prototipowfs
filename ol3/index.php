@@ -7,20 +7,20 @@
 		<script src="js/jquery-2.1.1.js" type="text/javascript"></script>
 
 		<!-- Latest compiled and minified CSS -->
-		<link rel="stylesheet" href="css/bootstrap.min.css">
+		<link rel="stylesheet" href="bootstrap/css/bootstrap.min.css">
 
 		<!-- Optional theme -->
-		<link rel="stylesheet" href="css/bootstrap-theme.min.css" type="text/css">
+		<link rel="stylesheet" href="bootstrap/css/bootstrap-theme.min.css" type="text/css">
 
 		<!-- Custom styles for this template -->
-		<link rel="stylesheet" href="css/dashboard.css" type="text/css">      
+		<link rel="stylesheet" href="bootstrap/css/dashboard.css" type="text/css">      
 
 		<!-- Latest compiled and minified JavaScript -->
-		<script src="js/bootstrap.min.js"></script>
+		<script src="bootstrap/js/bootstrap.min.js"></script>
 
 		<!-- OpenLayers 3 -->
-		<link rel="stylesheet" href="v3.0.0/css/ol.css" type="text/css">
-		<script src="v3.0.0/build/ol-debug.js" type="text/javascript"></script>
+		<link rel="stylesheet" href="openlayers3/v3.0.0/css/ol.css" type="text/css">
+		<script src="openlayers3/v3.0.0/build/ol-debug.js" type="text/javascript"></script>
 
 		<!-- "Imports" -->
 		<script src = "objects/Interface.js" type="text/javascript"></script>
@@ -31,7 +31,7 @@
 		<script src = "objects/Options.js" type="text/javascript"></script>
 
 		<title>Prototype WFS</title>
-		<link rel="shortcut icon" href="fonts/icon.png">
+		<link rel="shortcut icon" href="bootstrap/fonts/icon.png">
 	</head>
 
 	<body>
@@ -48,7 +48,7 @@
 						<ul class="dropdown-menu" id="changeMapTo">
 							<li><a href="#" id="mapQuest">Map Quest</a></li>
 							<li><a href="#" id="OSM">Open Street Maps</a></li>
-							<li><a href="#" id="ImageMosaic">WMS Image Mosaic</a></li>
+							<li><a href="#" id="ImageMosaic">WMS Image Example</a></li>
 						</ul>
 					</li>
 				</ul>
@@ -116,7 +116,7 @@
 
 				?>
 				<div class="row">
-					<div id="map" class="map"></div>
+					<div id="map" class="map" style="height : 710px"></div>
 				</div>
 			</div>
 			<div class="col-xs-3 col-xs-offset-9 sidebar">

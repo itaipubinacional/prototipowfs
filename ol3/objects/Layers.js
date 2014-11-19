@@ -26,7 +26,8 @@ var Layers = {
 		this.newLayer = function(store, layerId){
 			return vectorPoints = new ol.layer.Vector({
 				source: mySources.newSource(store, layerId),
-				style: myStyle.styleFunction
+				style: myStyle.styleFunction,
+				layerId: layerId
 			});
 		}
 

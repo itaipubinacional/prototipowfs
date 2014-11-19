@@ -101,7 +101,6 @@ var Interface = {
 
 		this.drawFeature = function(feature){
 
-
 			var geometry = feature.getGeometry();
 			var geometryType = geometry.getType();
 			var gmlStr;
@@ -331,10 +330,17 @@ var Interface = {
 
 		this.layerEditable = null;
 		this.setEdit = function(layerId){
-			//get the index where the layer is inserted in the collection
-			var layerIndex = $('#'+layerId).attr('index');
+			
+			var isFounded = false;
+			this.layersCollection.forEach( function(element, index){
+					if(element.values_ && (element.values_.layerId == layerId)){
+						isFounded = true;
+					}
+				},
+				this.layersCollection
+			);
 
-			if(!layerIndex) // Is there the layer on the list ?
+			if(!isFounded)
 				this.showLayer(layerId);
 
 			this.layerEditable = layerId;
@@ -367,13 +373,15 @@ var Interface = {
 		}
 
 		this.getSource = function(layerId){
-			var layerIndex = $('#'+this.layerEditable).attr('index');
-			var layer = this.layersCollection.removeAt(layerIndex);
-
-			layerIndex = this.layersCollection.push(layer);
-			$('#'+this.layerEditable).attr('index',layerIndex);
-
-			return layer.getSource();
+			var sourceReturn = undefined;
+			this.layersCollection.forEach( function(element, index){
+					if(element.values_ && (element.values_.layerId == layerId)){
+						sourceReturn =  element.source_;
+					}
+				},
+				this.layersCollection
+			);
+			return sourceReturn;
 		}
 
 		this.showLayer = function(layerId){
@@ -383,8 +391,7 @@ var Interface = {
 
 					var layer = myLayers.newLayer(this.store, layerId);
 
-					var layerIndex =  this.layersCollection.push(layer); //the collection returns the layer's index
-					$('#'+layerId).attr('index', layerIndex);
+					this.layersCollection.push(layer);
 
 					var visibility = visibility.replace('close', 'open');
 					$('#'+layerId).attr('class', visibility);
@@ -393,8 +400,14 @@ var Interface = {
 
 				}else{  //the layer is visible
 
-					this.layersCollection.removeAt(parseInt($('#'+layerId).attr('index'))); //index of the element to delete
-					$('#'+layerId).attr('index', null);
+					this.layersCollection.forEach( function(element, index){
+							if(element.values_ && (element.values_.layerId == layerId)){
+								this.removeAt(index);
+							}
+						},
+						this.layersCollection
+					);
+
 					$('#'+layerId).attr('class',visibility.replace('open','close'));
 					this.setLayerVisibilityOnJson(layerId, false);
 				}
