@@ -1,33 +1,5 @@
 -------------------XML-----------------------
-<Transaction service="WFS" version="1.1.0"
- xmlns:wfs="http://www.opengis.net/wfs"
- xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
- xmlns:sid1.gg="sid1.gg"
- xmlns:ogc="http://www.opengis.net/ogc"
- xmlns:gml="http://www.opengis.net/gml"
- xsi:schemaLocation="http://www.opengis.net/wfs http://schemas.opengis.net/wfs/1.0.0/WFS-transaction.xsd http://localhost:8080/geoserver/wfs/DescribeFeatureType?typename=sid1.gg:polygon_tab"><wfs:Update typeName="sid1.gg:polygon_tab">
-<wfs:Property>
-<wfs:Name>geometria</wfs:Name>
-<wfs:Value>
-<gml:Polygon srsDimension="2" srsName="http://www.opengis.net/gml/srs/epsg.xml#900913">
-<gml:exterior>
-<gml:LinearRing>
-<gml:posList>-5969746.828302188 -2882963.772160512 -5983600.833497949 -2885075.241976426 -5989104.299534482 -2888438.471220974 -5992424.161450353 -2893233.0117151747 -5995372.135853866 -2896540.796219196 -5997359.498589281 -2900362.6476334548 -5994149.143401303 -2906018.987726558 -5996289.380193288 -2910605.2094236687 -5997053.75047614 -2916108.675460201 -5996289.380193288 -2923293.7561190077 -5997875.654711133 -2926685.7523396327 -6007602.060379494 -2930478.836777814 -6024112.458489092 -2931701.829230377 -6028392.932073062 -2932924.8216829402 -6032367.657543891 -2936135.1768709174 -6036342.383014721 -2939192.6580023244 -6057744.75093457 -2943014.5094165835 -6062942.468857962 -2951881.204697664 -6074102.274987598 -2951116.8344148183 -6064318.335367096 -2963652.507053587 -6053922.8995203115 -2967627.2325244164 -6030380.294808477 -2970684.7136558234 -6029768.798582195 -2944696.1240388635 -6020290.6070748335 -2948976.597622833 -6005614.69764408 -2946836.3608308486 -6000722.727833829 -2949893.8419622555 -5990021.543873904 -2942861.6353600193 -5991856.032552748 -2951116.8344148183 -5988492.8033082 -2952034.0787542406 -5984823.825950512 -2945307.620265145 -5974944.546225579 -2947170.87592006 -5970358.324528469 -2911398.3466825974 -5969746.828302188 -2882963.772160512</gml:posList>
-</gml:LinearRing>
-</gml:exterior>
-</gml:Polygon>
-</wfs:Value>
-</wfs:Property>
-<wfs:Property>
-<wfs:Name>nome</wfs:Name>
-<wfs:Value>Parque Nacional doIguaçu</wfs:Value>
-</wfs:Property>
-<ogc:Filter>
-<ogc:FeatureId fid="polygon_tab.14"/>
-</ogc:Filter>
-</wfs:Update>
-</Transaction>
----------------------------------------------
+<Transaction xmlns="http://www.opengis.net/wfs" service="WFS" version="1.1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.opengis.net/wfs http://schemas.opengis.net/wfs/1.1.0/wfs.xsd"><Delete typeName="feature:linestring_tab" xmlns:feature="sid1.gg"><Filter xmlns="http://www.opengis.net/ogc"><FeatureId fid="linestring_tab.19"/></Filter></Delete></Transaction>---------------------------------------------
 * About to connect() to localhost port 8080 (#0)
 *   Trying 127.0.0.1... * connected
 * Server auth using Basic with user 'geoadmin'
@@ -36,10 +8,9 @@ Authorization: Basic Z2VvYWRtaW46aXRhaXB1LjEyMw==
 Host: localhost:8080
 Accept: */*
 Content-type: application/xml
-Content-Length: 2258
-Expect: 100-continue
+Content-Length: 402
 
-< HTTP/1.1 100 Continue
+* upload completely sent off: 402out of 402 bytes
 < HTTP/1.1 200 OK
 < Content-Type: text/xml
 < Content-Disposition: inline; filename=geoserver-Transaction.text
@@ -48,5 +19,5 @@ Expect: 100-continue
 < 
 * Connection #0 to host localhost left intact
 # Unsuccessful cURL request to http://localhost:8080/geoserver/wfs [200]
-<?xml version="1.0" encoding="UTF-8"?><wfs:TransactionResponse xmlns:ogc="http://www.opengis.net/ogc" xmlns:sid1.gg="sid1.gg" xmlns:wfs="http://www.opengis.net/wfs" xmlns:outro="outro" xmlns:ows="http://www.opengis.net/ows" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:gml="http://www.opengis.net/gml" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="1.1.0" xsi:schemaLocation="http://www.opengis.net/wfs http://localhost:8080/geoserver/schemas/wfs/1.1.0/wfs.xsd"><wfs:TransactionSummary><wfs:totalInserted>0</wfs:totalInserted><wfs:totalUpdated>1</wfs:totalUpdated><wfs:totalDeleted>0</wfs:totalDeleted></wfs:TransactionSummary><wfs:TransactionResults/><wfs:InsertResults><wfs:Feature><ogc:FeatureId fid="none"/></wfs:Feature></wfs:InsertResults></wfs:TransactionResponse>
-{"featureTypes":{"featureType":[{"name":"linestring_tab","href":"http://localhost:8080/geoserver/rest/workspaces/sid1.gg/featuretypes/linestring_tab.json","visible":true,"editable":false},{"name":"point_tab","href":"http://localhost:8080/geoserver/rest/workspaces/sid1.gg/featuretypes/point_tab.json","visible":true,"editable":false},{"name":"polygon_tab","href":"http://localhost:8080/geoserver/rest/workspaces/sid1.gg/featuretypes/polygon_tab.json","visible":true,"editable":true}],"editMode":true}}* Closing connection #0
+<?xml version="1.0" encoding="UTF-8"?><wfs:TransactionResponse xmlns:ogc="http://www.opengis.net/ogc" xmlns:sid1.gg="sid1.gg" xmlns:wfs="http://www.opengis.net/wfs" xmlns:outro="outro" xmlns:ows="http://www.opengis.net/ows" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:gml="http://www.opengis.net/gml" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="1.1.0" xsi:schemaLocation="http://www.opengis.net/wfs http://localhost:8080/geoserver/schemas/wfs/1.1.0/wfs.xsd"><wfs:TransactionSummary><wfs:totalInserted>0</wfs:totalInserted><wfs:totalUpdated>0</wfs:totalUpdated><wfs:totalDeleted>1</wfs:totalDeleted></wfs:TransactionSummary><wfs:TransactionResults/><wfs:InsertResults><wfs:Feature><ogc:FeatureId fid="none"/></wfs:Feature></wfs:InsertResults></wfs:TransactionResponse>
+{"featureTypes":{"featureType":[{"name":"linestring_tab","href":"http://localhost:8080/geoserver/rest/workspaces/sid1.gg/featuretypes/linestring_tab.json","visible":true,"editable":true},{"name":"point_tab","href":"http://localhost:8080/geoserver/rest/workspaces/sid1.gg/featuretypes/point_tab.json","visible":false,"editable":false},{"name":"polygon_tab","href":"http://localhost:8080/geoserver/rest/workspaces/sid1.gg/featuretypes/polygon_tab.json","visible":true,"editable":false}],"editMode":true}}* Closing connection #0

@@ -54,12 +54,3 @@ window.onload = function(){
  		}
  	}
  }
-
- $.ajax({
-	url: 'http://localhost:8080/geoserver/sid1.gg/wms?SERVICE=WMS&VERSION=1.3.0&EXCEPTIONS=text/javascript&LAYERS=sid1.gg%3Aall_images&format_options=callback:jsonParse',
-	dataType: 'jsonp'
- });
-
-function jsonParse(response){
-	console.log(response);
-}

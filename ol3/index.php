@@ -4,7 +4,7 @@
 		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 
 		<!-- JQuery -->
-		<script src="js/jquery-2.1.1.js" type="text/javascript"></script>
+		<script src="bootstrap/js/jquery-2.1.1.js" type="text/javascript"></script>
 
 		<!-- Latest compiled and minified CSS -->
 		<link rel="stylesheet" href="bootstrap/css/bootstrap.min.css">

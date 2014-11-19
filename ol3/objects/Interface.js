@@ -81,8 +81,7 @@ var Interface = {
 
 		this.submitXml = function(){ //Draw or Modify Feature
 			if (this.form.name.value != ''){
-				var collection = myInteractions.select.getFeatures();
-				var feature = collection.pop();
+				var feature = myInteractions.featureToDraw;
 				var geometry = feature.getGeometry();
 
 				if(myInteractions.isDraw)
