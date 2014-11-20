@@ -12,7 +12,7 @@ Como preparar seu ambiente
 
 3. Configure o usuário e senha padrões para: Usuário = **geoadmin** e Senha=**itaipu.123**;
 
-4. Crie um novo *Workspace* com o *name* e *namespace URI* = **sid1.gg**, e deixe selecionadas os checkbox: *Enable, WFS e WMS*; 
+4. Crie um novo *Workspace* com o *name* e *namespace URI* = **sid1.gg**, e deixe selecionados os checkbox: *Enable, WFS e WMS*; 
 
 5. Configure a conexão com banco de dados de acordo com o seu schema, usuário, senha etc... criando uma nova *Store* PostGIS DataBase no *Workspace*;
 
